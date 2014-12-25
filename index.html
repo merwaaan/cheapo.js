@@ -1,0 +1,82 @@
+<!doctype html>
+<head>
+  <title>Cheapo — a Chip-8 interpreter written in JavaScript</title>
+  <meta charset="utf-8">
+
+  <script src="src/utils.js"></script>
+  <script src="src/cpu.js"></script>
+  <script src="src/video.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/input.js"></script>
+  <script src="src/chip8.js"></script>
+
+  <script src="libs/underscore.min.js"></script>
+  <script src="libs/stats.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="screen.css"/>
+</head>
+<body>
+
+  <header>
+    <h1>Cheapo</h1>
+    <h2>a Chip-8 interpreter written in Javascript</h2>
+  </header>
+
+  <div id="game">
+
+    <canvas width="64" height="32"></canvas>
+
+    <table>
+      <tr>
+        <td>
+          <select id="hosted_rom">
+            <option disabled selected hidden="hidden">Try one of the available ROMs</option>
+            <optgroup label="Homebrew games">
+              <option>Espionage - Fredrik Brundin</option>
+              <option>Adjustris - TODO SEARCH AUTHOR</option>
+            </optgroup>
+            <optgroup label="Demos">
+              <option>gejmbåj - Snorpung</option>
+              <option>oh! - Snorpung</option>
+              <option>20y - Snorpung</option>
+              <option>demon blood - Youth Uprising</option>
+            </optgroup>
+            <optgroup label="Chiptune">
+              <option>Music Tech - PIXELH8</option>
+              <option>Little Sound Dj (demo) - TODO SEARCH AUTHOR</option>
+            </optgroup>
+            <optgroup label="Blargg's tests">
+              <option>cpu_instrs</option>
+              <option>dmg_sound</option>
+              <option>dmg_sound-2</option>
+              <option>instr_timing</option>
+              <option>mem_timing</option>
+              <option>mem_timing-2</option>
+              <option>oam_bug</option>
+              <option>oam_bug-2</option>
+            </optgroup>
+          </select>
+        </td>
+        <td>
+          <p>OR</p>
+        </td>
+        <td>
+          <p>Open your own ROM</p>
+          <input type="file" id="local_rom"/>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+  <script>
+
+    // Go Cheapo, go!
+    window.addEventListener('load', function() {
+      X.Chip8.init();
+    });
+
+  </script>
+
+</body>
+</html>
