@@ -17,9 +17,9 @@ X.Chip8 = (function() {
       X.Audio.init();
       X.Input.init();
 
-      // Reset the console when a game is inserted
-/*
-      var gb = this;
+      // Reset everything when a game is inserted
+
+      var chip8 = this;
 
       var local_rom_select = document.querySelector('input#local_rom');
       local_rom_select.selectedIndex = -1;
@@ -27,9 +27,7 @@ X.Chip8 = (function() {
 
         var reader = new FileReader();
         reader.addEventListener('load', function() {
-          gb.reset();
-          X.Cartridge.init(this.result);
-          if (X.Cartridge.ready && !gb.running) gb.run();
+          chip8.load(this.result);
         });
 
         reader.readAsArrayBuffer(this.files[0]);
@@ -45,24 +43,11 @@ X.Chip8 = (function() {
         request.responseType = 'arraybuffer';
 
         request.onload = function() {
-          gb.reset();
-          X.Cartridge.init(request.response);
-          if (X.Cartridge.ready && !gb.running) gb.run();
+          chip8.load(request.response);
         };
 
         request.send(null);
       });
-
-      // FPS counter
-
-      stats = new Stats();
-      stats.setMode(0);
-
-      stats.domElement.style.position = 'absolute';
-      stats.domElement.style.top = '0';
-      stats.domElement.style.right = '0';
-      document.body.appendChild(stats.domElement);
-      */
     },
 
     reset: function() {
@@ -73,13 +58,11 @@ X.Chip8 = (function() {
       X.Input.reset();
     },
 
-    frame: function(time) {
+    load: function(buffer) {
 
-      X.CPU.step();
-
-      // Repeat...
-      if (this.running)
-        requestAnimationFrame(this.frame.bind(this));
+      this.reset();
+      X.CPU.load(buffer);
+      this.run();
     },
 
     run: function() {
@@ -92,6 +75,15 @@ X.Chip8 = (function() {
     pause: function() {
       this.running = false;
     },
+
+    frame: function(time) {
+
+      X.CPU.step();
+
+      // Repeat...
+      if (this.running)
+        requestAnimationFrame(this.frame.bind(this));
+    }
 
   };
 

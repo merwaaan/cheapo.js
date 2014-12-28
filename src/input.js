@@ -35,7 +35,7 @@ X.Input = (function() {
 
     reset: function() {
 
-    },
+    }
 
   };
 

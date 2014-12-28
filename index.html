@@ -26,46 +26,35 @@
 
     <canvas width="64" height="32"></canvas>
 
-    <table>
-      <tr>
-        <td>
-          <select id="hosted_rom">
-            <option disabled selected hidden="hidden">Try one of the available ROMs</option>
-            <optgroup label="Homebrew games">
-              <option>Espionage - Fredrik Brundin</option>
-              <option>Adjustris - TODO SEARCH AUTHOR</option>
-            </optgroup>
-            <optgroup label="Demos">
-              <option>gejmbåj - Snorpung</option>
-              <option>oh! - Snorpung</option>
-              <option>20y - Snorpung</option>
-              <option>demon blood - Youth Uprising</option>
-            </optgroup>
-            <optgroup label="Chiptune">
-              <option>Music Tech - PIXELH8</option>
-              <option>Little Sound Dj (demo) - TODO SEARCH AUTHOR</option>
-            </optgroup>
-            <optgroup label="Blargg's tests">
-              <option>cpu_instrs</option>
-              <option>dmg_sound</option>
-              <option>dmg_sound-2</option>
-              <option>instr_timing</option>
-              <option>mem_timing</option>
-              <option>mem_timing-2</option>
-              <option>oam_bug</option>
-              <option>oam_bug-2</option>
-            </optgroup>
-          </select>
-        </td>
-        <td>
-          <p>OR</p>
-        </td>
-        <td>
-          <p>Open your own ROM</p>
-          <input type="file" id="local_rom"/>
-        </td>
-      </tr>
-    </table>
+    <select id="hosted_rom">
+      <option disabled selected hidden="hidden">Try one of the available ROMs</option>
+      <optgroup label="Homebrew games">
+        <option>Espionage - Fredrik Brundin</option>
+        <option>Adjustris - TODO SEARCH AUTHOR</option>
+      </optgroup>
+      <optgroup label="Demos">
+        <option>gejmbåj - Snorpung</option>
+        <option>oh! - Snorpung</option>
+        <option>20y - Snorpung</option>
+        <option>demon blood - Youth Uprising</option>
+      </optgroup>
+      <optgroup label="Chiptune">
+        <option>Music Tech - PIXELH8</option>
+        <option>Little Sound Dj (demo) - TODO SEARCH AUTHOR</option>
+      </optgroup>
+      <optgroup label="Blargg's tests">
+        <option>cpu_instrs</option>
+        <option>dmg_sound</option>
+        <option>dmg_sound-2</option>
+        <option>instr_timing</option>
+        <option>mem_timing</option>
+        <option>mem_timing-2</option>
+        <option>oam_bug</option>
+        <option>oam_bug-2</option>
+      </optgroup>
+    </select>
+
+    <input type="file" id="local_rom"/>
 
   </div>
 

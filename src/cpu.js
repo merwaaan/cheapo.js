@@ -2,7 +2,7 @@ var X = X || {};
 
 X.CPU = (function() {
 
-  'use strict';
+//  'use strict';
 
   var memory;
 
@@ -12,50 +12,52 @@ X.CPU = (function() {
 
   var instructions = {
 
-    ADD: function(a, b) {
-      var x = a + b;
-      a = x & 0xFF;
+    ADD: function(params) {
+      var x = params[0].get() + params[1].get();
+      params[0].set(x & 0xFF);
       X.CPU.V[0xF] = x > 0xFF ? 1 : 0;
     },
 
-    AND: function(a, b) {
+    AND: function(params) {
       a &= b;
+      params[0].set(params[0].get() & params[1].get());
     },
 
-    CALL: function(a) {
+    CALL: function(params) {
       X.CPU.stack[++X.CPU.SP] = X.CPU.PC;
-      X.CPU.PC = a;
+      X.CPU.PC = params[0].get();
     },
 
     CLS: function() {
       X.Video.clear();
     },
 
-    DRW: function(a, b, c) {
+    DRW: function(params) {
 
     },
 
-    LD: function(a, b) {
-      a.set(b.get());
+    LD: function(params) {
+      params[0].set(params[1].get());
     },
 
-    LD_keypress: function(a, b) {
-
-    },
-
-    LD_sprite: function(a, b) {
+    LD_keypress: function(params) {
 
     },
 
-    LD_bcd: function(a, b) {
+    LD_sprite: function(params) {
 
     },
 
-    JP: function(a, offset) {
-      X.CPU.PC = a + offset;
+    LD_bcd: function(params) {
+
     },
 
-    OR: function(a, b) {
+    JP: function(params) {
+      X.CPU.PC = params[0].get() + (params.length > 1 ? params[1].get() : 0);
+    },
+
+    OR: function(params) {
+      params[0].set(params[0].get() | params[1].get());
       a |= b;
     },
 
@@ -63,42 +65,42 @@ X.CPU = (function() {
       X.CPU.PC = X.CPU.stack[X.CPU.SP--];
     },
 
-    RND: function(a, b) {
-      var x = Math.floor(Math.random() * 0xFF)
-      a = x & b;
+    RND: function(params) {
+      var x = Math.floor(Math.random() * 0xFF);
+      params[0].set(x & params[1].get());
     },
 
-    SE: function(a, b) {
-      if (a == b)
+    SE: function(params) {
+      if (params[0].get() == params[1].get())
         X.CPU.PC += 2;
     },
 
-    SHL: function(a, b) {
-      X.CPU.V[0xF] = X.Utils.bit(a, 7) ? 1 : 0;
-      a = (a << 1) & 0xFF;
+    SHL: function(params) {
+      X.CPU.V[0xF] = X.Utils.bit(params[0].get(), 7) ? 1 : 0;
+      params[0].set((params[0].get() << 1) & 0xFF);
     },
 
-    SHR: function(a, b) {
-      X.CPU.V[0xF] = X.Utils.bit(a, 0) ? 1 : 0;
-      a >>= 1;
+    SHR: function(params) {
+      X.CPU.V[0xF] = X.Utils.bit(params[0].get(), 0) ? 1 : 0;
+      params[0].set(params[0].get() >> 1);
     },
 
-    SKP: function(a) {
-      if (X.Input.down(a))
+    SKP: function(params) {
+      if (X.Input.down(params[0].get()))
         X.CPU.PC += 2;
     },
 
-    SKNP: function(a) {
-      if (X.Input.up(a))
+    SKNP: function(params) {
+      if (X.Input.up(params[0].get()))
         X.CPU.PC += 2;
     },
 
-    SNE: function(a, b) {
-      if (a != b)
+    SNE: function(params) {
+      if (params[0].get() != params[1].get())
         X.CPU.PC += 2;
     },
 
-    SUB: function(a, b) {
+    SUB: function(params) {
       a = (a - b) & 0xFF;
       X.CPU.V[0xF] = a > b ? 1 : 0;
     },
@@ -119,84 +121,80 @@ X.CPU = (function() {
     */
 
   var accessors = {
-
-    Vx: {
-      get: function(x) { return X.CPU.V[x]; },
-      set: function(x, val) { X.CPU.V[x] = val; }
-    },
-
-    V0: {
-      get: function(x) { return X.CPU.V[0]; },
-      set: function(x, val) { X.CPU.V[0] = val; }
-    },
-
-    I: {
-      get: function(x) { return X.CPU.I; },
-      set: function(x, val) { X.CPU.I = val; }
-    },
-
-    DT: {
-      get: function(x) { return X.CPU.DT; },
-      set: function(x, val) { X.CPU.DT = val; }
-    },
-
-    ST: {
-      get: function(x) { return X.CPU.ST; },
-      set: function(x, val) { X.CPU.ST = val; }
-    },
-
-    value: {
-      get: function(x) { return x; },
-      set: function(x, val) { x = val; }
-    }
-
+    Vx: { get: function(x) { return X.CPU.V[x]; }, set: function(x, val) { X.CPU.V[x] = val; } },
+    V0: { get: function(x) { return X.CPU.V[0]; }, set: function(x, val) { X.CPU.V[0] = val; } },
+    I: { get: function(x) { return X.CPU.I; }, set: function(x, val) { X.CPU.I = val; } },
+    DT: { get: function(x) { return X.CPU.DT; }, set: function(x, val) { X.CPU.DT = val; } },
+    ST: { get: function(x) { return X.CPU.ST; }, set: function(x, val) { X.CPU.ST = val; } },
+    value: { get: function(x) { return x; } }
   };
+
+  /**
+    *
+    */
 
   var jumptable = {};
 
-  function register(opcode, instruction, accessors) {
+  function register(pattern, instruction, accessors) {
 
-    // Isolate the "wildcards"
+    // Isolate the "wildcards" in the opcode pattern
+    // eg. '8xy0' -> ['x', 'y']
 
-    var wildcards = [];
-    var regex = /x|y|nnn|n|kk/g;
+    var wildcards = pattern.match(/x|y|nnn|n|kk/g);
 
-    var wildcard;
-    while (wildcard = regex.exec(opcode)) {
-      wildcards.push(wildcard);
+    // If there is no wildcard (unique opcode) just put the
+    // instruction in the jumptable
+
+    if (!wildcards) {
+      jumptable[parseInt(pattern, 16)] = {
+        instruction: instruction,
+      };
     }
 
-    if (wildcards.length > 0) {
-      var before = opcode.slice(0, wildcards[0].index);
-      var after = opcode.slice(wildcards[wildcards.length-1].index + wildcards[wildcards.length-1][0].length);
-      var length = 4 - before.length - after.length;
-    }
+    // If there are wildcards, enumerate the possible opcodes and
+    // fill the jumptable with the instruction and precomputed parameters
 
-    // Prepare the data to be cached in the jumptable
+    else {
 
-    var args = Array.prototype.slice.call(arguments);
+      var wildcards_length = wildcards.reduce(function(sum, wildcard) { return sum + wildcard.length; }, 0);
+      var range = Math.pow(2, wildcards_length * 4);
 
-    var opcode_data = {
+      var before = pattern.slice(0, pattern.indexOf(wildcards[0]));
+      var after = pattern.slice(before.length+wildcards_length);
 
-      instruction: instruction,
-      accessors: args.slice(2, args.length),
+      var accessors = Array.prototype.slice.call(arguments, 2);
 
-      parser: function(opcode) {
+      for (var i = 0; i < range; ++i) {
+
+        var chunk = X.Utils.pad(i.toString(16), '0', wildcards_length);
+        var opcode = before + chunk + after;
+
         var parameters = [];
-        for (var i = 0; i < wildcards.length; ++i) {
-          parameters[i] = X.Utils.swizzle(4 - wildcards[i].index, wildcards[i][0].length);
+
+        var cursor = before.length;
+        for (var j = 0; j < wildcards.length; ++j) {
+
+          var parameter = parseInt(opcode.slice(cursor, cursor + wildcards[j].length), 16);
+
+          parameters.push(
+            function(accessor, parameter) {
+              return {
+                get: function() { return accessor.get(parameter); },
+                set: function(x) { accessor.set(parameter, x); }
+              };
+            }(accessors[j], parameter)
+          );
+
+          cursor += wildcards[j].length;
         }
-        return parameters;
+
+        var opcode_data = {
+          instruction: instruction,
+          parameters: parameters
+        };
+
+        jumptable[parseInt(opcode, 16)] = opcode_data;
       }
-    };
-
-    // Enumerate the possible opcodes and fill the jumptable
-
-    var range = Math.pow(2, length * 4) - 1;
-
-    for (var i = 0; i < range; ++i) {
-      var o = before + X.Utils.pad(i.toString(16), '0', length) + after;
-      jumptable[o] = opcode_data;
     }
   };
 
@@ -257,6 +255,8 @@ X.CPU = (function() {
       register('Fx33', instructions.LD_bcd, accessors.Vx);
       register('Fx55', instructions.LD, accessors.I_, accessors.Vx);
       register('Fx65', instructions.LD, accessors.Vx, accessors.I_);
+
+      console.log(jumptable);
     },
 
     reset: function() {
@@ -265,6 +265,7 @@ X.CPU = (function() {
     },
 
     load: function(buffer) {
+
       this.memory = new Uint8Array(buffer);
     },
 
@@ -280,13 +281,9 @@ X.CPU = (function() {
       if (!opcode_data)
         console.log('Undefined opcode');
 
-      var instruction = opcode_data.instruction;
-      var parameters = opcode_data.parse(opcode);
-      var accessors = opcode_data.accessors;
-
       // Execute
 
-      instruction();
+      opcode_data.instruction(opcode_data.parameters);
 
       X.CPU.PC += 2;
     },
