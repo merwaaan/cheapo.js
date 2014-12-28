@@ -35,6 +35,10 @@ X.Input = (function() {
 
     reset: function() {
 
+    },
+
+    down: function(key) {
+      return false;
     }
 
   };

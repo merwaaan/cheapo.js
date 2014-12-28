@@ -62,7 +62,7 @@ X.Chip8 = (function() {
 
       this.reset();
       X.CPU.load(buffer);
-      this.run();
+      //this.run();
     },
 
     run: function() {
