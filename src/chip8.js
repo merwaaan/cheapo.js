@@ -22,7 +22,6 @@ X.Chip8 = (function() {
       var chip8 = this;
 
       var local_rom_select = document.querySelector('input#local_rom');
-      local_rom_select.selectedIndex = -1;
       local_rom_select.addEventListener('change', function() {
 
         var reader = new FileReader();
@@ -39,7 +38,7 @@ X.Chip8 = (function() {
         var name = event.target.selectedOptions[0].textContent;
 
         var request = new XMLHttpRequest();
-        request.open('GET', 'roms/' + name + '.gb', true);
+        request.open('GET', 'roms/' + name, true);
         request.responseType = 'arraybuffer';
 
         request.onload = function() {

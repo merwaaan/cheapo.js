@@ -6,10 +6,6 @@ X.Utils = (function() {
 
   return {
 
-    pad: function(string, char, n) {
-      return ('00000000000' + string).substr(-n);
-    },
-
     /**
       * Bitwise operations
       */
@@ -50,6 +46,10 @@ X.Utils = (function() {
         array[i] = value;
     },
 
+    pad: function(string, char, n) {
+      return ('00000000000' + string).substr(-n);
+    },
+
     hex8: function(value) {
       return ('0' + value.toString(16).toUpperCase()).substr(-2);
     },
@@ -63,11 +63,6 @@ X.Utils = (function() {
       for (var i = 0; i < bytes.length; ++i)
         string +=String.fromCharCode(bytes[i]);
       return string;
-    },
-
-    inherit: function(SubClass, SuperClass) {
-      SubClass.prototype = Object.create(SuperClass.prototype);
-      SubClass.prototype.constructor = SubClass;
     }
 
   };

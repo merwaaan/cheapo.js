@@ -36,6 +36,10 @@ X.CPU = (function() {
       params[0].set(x & 0xFF);
     },
 
+    ADD_I: function(params) {
+      X.CPU.I += params[0].get();
+    },
+
     ADD_nocarry: function(params) {
       params[0].set((params[0].get() + params[1].get()) & 0xFF);
     },
@@ -63,9 +67,9 @@ X.CPU = (function() {
 
     LD_bcd: function(params) {
       var x = params[0].get();
-      x -= (X.CPU.memory[I] = Math.floor(x/100));
-      x -= (X.CPU.memory[I+1] = Math.floor(x/10));
-      X.CPU.memory[I+2] = x;
+      x -= (X.CPU.memory[X.CPU.I] = Math.floor(x/100));
+      x -= (X.CPU.memory[X.CPU.I+1] = Math.floor(x/10));
+      X.CPU.memory[X.CPU.I+2] = x;
     },
 
     LD_keypress: function(params) {
@@ -76,11 +80,28 @@ X.CPU = (function() {
       X.CPU.I = params[0].get() * 5;
     },
 
+    LD_I: function(params) {
+      X.CPU.I = params[0].get();
+    },
+
+    LD_V_DT: function(params) {
+      params[0].set(X.CPU.DT);
+    },
+
+    LD_DT_V: function(params) {
+      X.CPU.DT = params[0].get();
+    },
+
+    LD_ST_V: function(params) {
+      X.CPU.ST = params[0].get();
+    },
+
     LD_I_regs: function(params) {
       var x = params[0].get();
       for (var i = 0; i <= x; ++i)
         X.CPU.memory[X.CPU.I + i] = X.CPU.V[i];
       X.CPU.I += x + 1;
+      if (X.CPU.I % 2 != 0) X.CPU.I += 1;
     },
 
     LD_regs_I: function(params) {
@@ -88,10 +109,11 @@ X.CPU = (function() {
       for (var i = 0; i <= x; ++i)
         X.CPU.V[i] = X.CPU.memory[X.CPU.I + i];
       X.CPU.I += x + 1;
+      if (X.CPU.I % 2 != 0) X.CPU.I += 1;
     },
 
     JP: function(params) {
-      X.CPU.PC = params[0].get() + (params.length > 1 ? params[1].get() : 0);
+      X.CPU.PC = params[0].get() + (params.length > 1 ? X.CPU.V[0] : 0) - 2;
     },
 
     OR: function(params) {
@@ -149,13 +171,13 @@ X.CPU = (function() {
       X.CPU.V[0xF] = a < b ? 0 : 1;
     },
 
-    SUBN: function(a, b) {
+    SUBN: function(params) {
       var a = params[0].get(), b = params[1].get();
       params[0].set((b - a) & 0xFF);
       X.CPU.V[0xF] = b < a ? 0 : 1;
     },
 
-    XOR: function(a, b) {
+    XOR: function(params) {
       params[0].set(params[0].get() ^ params[1].get());
     }
 
@@ -167,7 +189,6 @@ X.CPU = (function() {
 
   var accessors = {
     Vx: { get: function(x) { return X.CPU.V[x]; }, set: function(x, val) { X.CPU.V[x] = val; } },
-    V0: { get: function(x) { return X.CPU.V[0]; }, set: function(x, val) { X.CPU.V[0] = val; } },
     I: { get: function(x) { return X.CPU.I; }, set: function(x, val) { X.CPU.I = val; } },
     DT: { get: function(x) { return X.CPU.DT; }, set: function(x, val) { X.CPU.DT = val; } },
     ST: { get: function(x) { return X.CPU.ST; }, set: function(x, val) { X.CPU.ST = val; } },
@@ -245,7 +266,7 @@ X.CPU = (function() {
 
   return {
 
-    memory: [],
+    memory: new Uint8Array(0x1000),
 
     /**
       * Registers
@@ -287,17 +308,17 @@ X.CPU = (function() {
       register('8xy7', instructions.SUBN, accessors.Vx, accessors.Vx);
       register('8xyE', instructions.SHL, accessors.Vx, accessors.Vx);
       register('9xy0', instructions.SNE, accessors.Vx, accessors.Vx);
-      register('Annn', instructions.LD, accessors.I, accessors.value);
-      register('Bnnn', instructions.JP, accessors.value, accessors.V0);
+      register('Annn', instructions.LD_I, accessors.value); // TODO
+      register('Bnnn', instructions.JP, accessors.value, accessors.value);
       register('Cxkk', instructions.RND, accessors.Vx, accessors.value);
       register('Dxyn', instructions.DRW, accessors.Vx, accessors.Vx, accessors.value);
       register('Ex9E', instructions.SKP, accessors.Vx);
       register('ExA1', instructions.SKNP, accessors.Vx);
-      register('Fx07', instructions.LD, accessors.Vx, accessors.DT);
+      register('Fx07', instructions.LD_V_DT, accessors.Vx); // TODO use the same generic function for all LDs
       register('Fx0A', instructions.LD_keypress, accessors.value);
-      register('Fx15', instructions.LD, accessors.DT, accessors.Vx);
-      register('Fx18', instructions.LD, accessors.ST, accessors.VX);
-      register('Fx1E', instructions.ADD, accessors.I, accessors.Vx);
+      register('Fx15', instructions.LD_DT_V, accessors.VX); // TODO
+      register('Fx18', instructions.LD_ST_V, accessors.VX); // TODO
+      register('Fx1E', instructions.ADD_I, accessors.Vx); // TODO
       register('Fx29', instructions.LD_font, accessors.Vx);
       register('Fx33', instructions.LD_bcd, accessors.Vx);
       register('Fx55', instructions.LD_I_regs, accessors.Vx);
@@ -308,22 +329,29 @@ X.CPU = (function() {
 
     reset: function() {
 
+      // Reset the registers
+
       this.PC = 0x200;
+      this.SP = 0;
+      this.DT = 0;
+      this.ST = 0;
+
+      for (var i = 0; i < 16; ++i)
+        this.V[i] = this.stack[i] = 0;
+
+      // Reset the memory
+      this.memory = new Uint8Array(0x1000);
 
       // Put the font data at 0
       for (var i = 0; i < font.length; ++i)
         this.memory[i] = font[i];
-
-      // Zero the rest of the memory
-      for (var i = font.length; i < 0x10000; ++i)
-        this.memory[i] = 0;
-
     },
 
     load: function(buffer) {
 
+      buffer = new Uint8Array(buffer);
       for (var i = 0; i < buffer.length; ++i)
-        this.memory[0x200 + i] = buffer[i]; // TODO 8b?
+        this.memory[0x200 + i] = buffer[i];
     },
 
     step: function() {
@@ -339,19 +367,24 @@ X.CPU = (function() {
 
       // Get the current opcode
 
-      var opcode = (this.memory[X.CPU.PC] << 8) | this.memory[X.CPU.PC + 1];
+      var opcode = this.memory[X.CPU.PC] << 8 | this.memory[X.CPU.PC + 1];
 
       // Fetch the implementation cached in the jumptable
 
       var opcode_data = jumptable[opcode];
       if (!opcode_data)
         console.log('Undefined opcode [%s]', opcode.toString(16));
-      /*else
+      else
         console.log(opcode.toString(16), opcode_data.instruction.prototype);
-*/
+
       // Execute
 
       opcode_data.instruction(opcode_data.parameters);
+
+      // Update the timers
+
+      if (this.DT > 0) --this.DT;
+      if (this.ST > 0) --this.ST;
 
       X.CPU.PC += 2;
     },
