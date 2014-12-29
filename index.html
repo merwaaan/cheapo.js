@@ -10,7 +10,7 @@
   <script src="src/input.js"></script>
   <script src="src/chip8.js"></script>
 
-  <script src="libs/underscore.min.js"></script>
+  <script src="libs/dat.gui.min.js"></script>
   <script src="libs/stats.min.js"></script>
 
   <link rel="stylesheet" type="text/css" href="screen.css"/>
@@ -44,9 +44,29 @@
   <script>
 
     // Go Cheapo, go!
+
     window.addEventListener('load', function() {
       X.Chip8.init();
     });
+
+    // GUI
+
+    var gui = new dat.GUI();
+
+    var game = gui.addFolder('Game');
+    game.add({test:'r'}, 'test', ['15PUZZLE', 'BLINKY', 'BLITZ', 'BRIX', 'CONNECT4', 'EMUTEST', 'GUESS', 'HIDDEN', 'INVADERS', 'KALEID', 'MAZE', 'MERLIN', 'MISSILE', 'PONG', 'PONG2', 'PUZZLE', 'SYZYGY', 'TANK', 'TETRIS', 'TICTAC', 'UFO', 'VBRIX', 'VERS', 'WIPEOFF']);
+    game.open();
+
+    var video = gui.addFolder('Video')
+    video.addColor(X.Video, 'color');
+    video.addColor(X.Video, 'background');
+    video.open();
+
+    var audio = gui.addFolder('Audio');
+    audio.add(X.Audio, 'volume').min(0).max(100).step(1);
+    audio.add(X.Audio, 'frequency').min(200).max(600).step(1);
+    audio.open();
+
 
   </script>
 

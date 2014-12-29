@@ -10,6 +10,9 @@ X.Video = (function() {
 
   return {
 
+    color: [0, 0, 0],
+    background: [255, 255, 255],
+
     init: function() {
 
       var canvas = document.querySelector('canvas');
