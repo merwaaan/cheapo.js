@@ -1,6 +1,6 @@
-var X = X || {};
+var Cheapo = Cheapo || {};
 
-X.CPU = (function() {
+Cheapo.CPU = (function() {
 
   'use strict';
 
@@ -54,8 +54,8 @@ X.CPU = (function() {
     SE_Vx_Vy: function(x, y) { if (this.V[x] == this.V[y]) this.PC += 2 },
     SNE_Vx_byte: function(x, byte) { if (this.V[x] != byte) this.PC += 2 },
     SNE_Vx_Vy: function(x, y) { if (this.V[x] != this.V[y]) this.PC += 2 },
-    SKP_Vx: function(x) { if (X.Input.down(this.V[x])) this.PC += 2 },
-    SKNP_Vx: function(x) { if (!X.Input.down(this.V[x])) this.PC += 2 },
+    SKP_Vx: function(x) { if (Cheapo.Input.down(this.V[x])) this.PC += 2 },
+    SKNP_Vx: function(x) { if (!Cheapo.Input.down(this.V[x])) this.PC += 2 },
 
     // Arithmetic
 
@@ -115,8 +115,8 @@ X.CPU = (function() {
 
     // Display
 
-    CLS: function() { X.Video.clear() },
-    DRW_Vx_Vy_nibble: function(x, y, nibble) { this.V[0xF] = +X.Video.sprite(this.I, this.V[x], this.V[y], nibble) }
+    CLS: function() { Cheapo.Video.clear() },
+    DRW_Vx_Vy_nibble: function(x, y, nibble) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], nibble) }
 
   };
 
@@ -276,7 +276,7 @@ X.CPU = (function() {
       // Check for user input after a wait instruction
 
       if (_waiting_register) {
-        var key = X.Input.any();
+        var key = Cheapo.Input.any();
         if (key !== null) {
           this.V[_waiting_register] = key;
           _waiting_register = null;
@@ -287,7 +287,7 @@ X.CPU = (function() {
 
       // Get the current opcode
 
-      var opcode = this.memory[X.CPU.PC] << 8 | this.memory[X.CPU.PC + 1];
+      var opcode = this.memory[Cheapo.CPU.PC] << 8 | this.memory[Cheapo.CPU.PC + 1];
 
       // Fetch the implementation cached in the jumptable
 

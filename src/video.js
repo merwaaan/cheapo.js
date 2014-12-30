@@ -1,6 +1,6 @@
-var X = X || {};
+var Cheapo = Cheapo || {};
 
-X.Video = (function() {
+Cheapo.Video = (function() {
 
   'use strict';
 
@@ -101,7 +101,7 @@ X.Video = (function() {
 
       for (var i = 0; i < n; ++i) {
 
-        var line = X.CPU.memory[address + i];
+        var line = Cheapo.CPU.memory[address + i];
 
         for (var j = 0; j < 8; ++j)
           if (!!(line & 1 << (7 - j)) && this.pixel(x + j, y + i))

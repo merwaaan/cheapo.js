@@ -1,6 +1,6 @@
-var X = X || {};
+var Cheapo = Cheapo || {};
 
-X.Chip8 = (function() {
+Cheapo.Main = (function() {
 
   'use strict';
 
@@ -12,24 +12,24 @@ X.Chip8 = (function() {
 
     init: function() {
 
-      X.CPU.init();
-      X.Video.init();
-      X.Audio.init();
-      X.Input.init();
+      Cheapo.CPU.init();
+      Cheapo.Video.init();
+      Cheapo.Audio.init();
+      Cheapo.Input.init();
     },
 
     reset: function() {
 
-      X.CPU.reset();
-      X.Video.reset();
-      X.Audio.reset();
-      X.Input.reset();
+      Cheapo.CPU.reset();
+      Cheapo.Video.reset();
+      Cheapo.Audio.reset();
+      Cheapo.Input.reset();
     },
 
     load: function(buffer) {
 
       this.reset();
-      X.CPU.load(buffer);
+      Cheapo.CPU.load(buffer);
       this.run();
     },
 
@@ -47,11 +47,11 @@ X.Chip8 = (function() {
     frame: function(time) {
 
       var now = window.performance.now();
-      var ticks = (now - _last_frame) / 1000 * X.CPU.frequency + _tick_rest;
+      var ticks = (now - _last_frame) / 1000 * Cheapo.CPU.frequency + _tick_rest;
       _tick_rest = ticks % 1;
 
       for (var i = 0, t = Math.floor(ticks); i < t; ++i)
-        X.CPU.step();
+        Cheapo.CPU.step();
 
       _last_frame = now;
     }

@@ -1,6 +1,6 @@
 var X = X || {};
 
-X.Input = (function() {
+Cheapo.Input = (function() {
 
   'use strict';
 
