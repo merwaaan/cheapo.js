@@ -10,11 +10,6 @@ body {
 	font-family: "Pontano Sans";
 }
 
-canvas {
-	margin: 1em;
-	border: 1px solid lightgrey;
-}
-
 header {
 	margin: 1em;
 }
@@ -35,4 +30,26 @@ h2 {
 	padding: 0.6em;
 	padding-left: 0.85em;
 	border-bottom: 0.2em solid #e61d5f;
+}
+
+canvas {
+	margin: 1em;
+	border: 1px solid lightgrey;
+}
+
+footer {
+	margin: 2.5em;
+	font-size: 0.9em;
+	font-family: "Inconsolata";
+	color: grey;
+}
+
+footer ul {
+	list-style-type: square;
+}
+
+footer a {
+	color: grey;
+	text-decoration: none;
+	border-bottom: 1px dashed grey;
 }

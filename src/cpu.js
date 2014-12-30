@@ -69,7 +69,7 @@ X.CPU = (function() {
       this.V[0xF] = +(sum > 0xFF);
       this.V[x] = sum;
     },
-    ADD_I_Vx: function(x) { this.I = (this.I + this.V[x]) & 0xFFF },
+    ADD_I_Vx: function(x) { this.I = (this.I + this.V[x]) & 0xFFFF },
 
     SUB_Vx_Vy: function(x, y) {
       this.V[0xF] = +(this.V[x] > this.V[y]);
