@@ -9,7 +9,7 @@ X.Video = (function() {
   var map = [];
 
   /**
-    *
+    * Colors
     */
 
   var _color = [0, 0, 0];
@@ -35,10 +35,39 @@ X.Video = (function() {
     document.querySelector('canvas').style.backgroundColor = css_color(color);
   }
 
+  /**
+    * Canvas size
+    */
+
+  var _scale = 1;
+
+  function set_scale(scale) {
+
+    _scale = scale;
+
+    ctx.canvas.width = 64 * _scale;
+    ctx.canvas.height = 32 * _scale;
+
+    redraw();
+  }
+
+  function redraw() {
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // XXX weird bug when changing the scale before playing a game
+
+    for (var i = 0; i < map.length; ++i)
+      if (map[i])
+        ctx.fillRect((i % 64) * _scale, parseInt(i / 64) * _scale, _scale, _scale);
+  }
+
   return {
 
     get color() { return _color }, set color(x) { set_color(x) },
     get background() { return _background }, set background(x) { set_background(x) },
+
+    get scale() { return _scale }, set scale(x) { set_scale(x) },
 
     wrap: false,
 
@@ -87,12 +116,12 @@ X.Video = (function() {
       var index = y * ctx.canvas.width + x;
 
       if (map[index]) {
-        ctx.clearRect(x, y, 1, 1);
+        ctx.clearRect(x * _scale, y * _scale, _scale, _scale);
         map[index] = false;
         return true;
       }
 
-      ctx.fillRect(x, y, 1, 1);
+      ctx.fillRect(x * _scale, y * _scale, _scale, _scale);
       map[index] = true;
       return false;
     },

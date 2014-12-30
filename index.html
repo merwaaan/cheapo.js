@@ -62,8 +62,10 @@
     cpu.open();
 
     var video = gui.addFolder('Video')
+    video.add(X.Video, 'scale').min(1).max(10).step(1);
     video.addColor(X.Video, 'color');
     video.addColor(X.Video, 'background');
+    video.add(X.Video, 'wrap');
     video.open();
 
     var audio = gui.addFolder('Audio');
