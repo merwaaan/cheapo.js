@@ -35,33 +35,33 @@
     // Go Cheapo, go!
 
     window.addEventListener('load', function() {
+
       X.Chip8.init();
+
+      // GUI
+
+      var gui = new dat.GUI();
+
+      var game = gui.addFolder('Game');
+      game.add({load:''}, 'load', ['bmp.ch8', 'clock.ch8', 'div.ch8', 'fish.ch8', 'jump.ch8', 'key.ch8', 'keypad.ch8', 'life.ch8', 'logo1.ch8', 'logo2.ch8', 'min.ch8', 'mk1.ch8', 'mk2.ch8', 'pic.ch8', 'rnd.ch8', 'sqrt.ch8', 'timer.ch8', 'SCTEST', '15PUZZLE', 'BLINKY', 'BLITZ', 'BRIX', 'CONNECT4', 'EMUTEST', 'GUESS', 'HIDDEN', 'INVADERS', 'KALEID', 'MAZE', 'MERLIN', 'MISSILE', 'PONG', 'PONG2', 'PUZZLE', 'SYZYGY', 'TANK', 'TETRIS', 'TICTAC', 'UFO', 'VBRIX', 'VERS', 'WIPEOFF']).onChange(function(value) { X.Chip8.load(value); });
+      game.open();
+
+      var cpu = gui.addFolder('CPU')
+      cpu.add(X.CPU, 'frequency').min(10).max(1000).step(10);
+      cpu.open();
+
+      var video = gui.addFolder('Video')
+      video.add(X.Video, 'scale').min(1).max(10).step(1);
+      video.addColor(X.Video, 'color');
+      video.addColor(X.Video, 'background');
+      video.add(X.Video, 'wrap');
+      video.open();
+
+      var audio = gui.addFolder('Audio');
+      audio.add(X.Audio, 'volume').min(0).max(100).step(1);
+      audio.add(X.Audio, 'frequency').min(0).max(1000).step(1);
+      audio.open();
     });
-
-    // GUI
-
-    var gui = new dat.GUI();
-
-    var game = gui.addFolder('Game');
-    game.add({load:''}, 'load', ['bmp.ch8', 'clock.ch8', 'div.ch8', 'fish.ch8', 'jump.ch8', 'key.ch8', 'keypad.ch8', 'life.ch8', 'logo1.ch8', 'logo2.ch8', 'min.ch8', 'mk1.ch8', 'mk2.ch8', 'pic.ch8', 'rnd.ch8', 'sqrt.ch8', 'timer.ch8', 'SCTEST', '15PUZZLE', 'BLINKY', 'BLITZ', 'BRIX', 'CONNECT4', 'EMUTEST', 'GUESS', 'HIDDEN', 'INVADERS', 'KALEID', 'MAZE', 'MERLIN', 'MISSILE', 'PONG', 'PONG2', 'PUZZLE', 'SYZYGY', 'TANK', 'TETRIS', 'TICTAC', 'UFO', 'VBRIX', 'VERS', 'WIPEOFF']).onChange(function(value) { X.Chip8.load(value); });
-    game.open();
-
-    var cpu = gui.addFolder('CPU')
-    cpu.add(X.CPU, 'frequency').min(10).max(1000).step(10);
-    cpu.open();
-
-    var video = gui.addFolder('Video')
-    video.add(X.Video, 'scale').min(1).max(10).step(1);
-    video.addColor(X.Video, 'color');
-    video.addColor(X.Video, 'background');
-    video.add(X.Video, 'wrap');
-    video.open();
-
-    var audio = gui.addFolder('Audio');
-    audio.add(X.Audio, 'volume').min(0).max(100).step(1);
-    audio.add(X.Audio, 'frequency').min(200).max(600).step(1);
-    audio.open();
-
 
   </script>
 

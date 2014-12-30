@@ -4,7 +4,7 @@ X.Video = (function() {
 
   'use strict';
 
-  var _ctx;
+  var _ctx = null;
 
   var _map = [];
 
