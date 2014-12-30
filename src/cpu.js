@@ -150,7 +150,7 @@ X.CPU = (function() {
 
       for (var i = 0; i < range; ++i) {
 
-        var chunk = X.Utils.pad(i.toString(16), '0', wildcards_length);
+        var chunk = ('00' + i.toString(16)).substr(wildcards_length);
         var opcode = before + chunk + after;
 
         var parameters = [];

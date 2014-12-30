@@ -16,6 +16,13 @@ X.Audio = (function() {
     _oscillator.type = 0;
     _oscillator.frequency.value = frequency;
     _oscillator.connect(_gain);
+
+    // When this oscillator is stopped, create a
+    // new oscillator to play the next tone
+
+    _oscillator.onended = function() {
+      create_oscillator();
+    };
   }
 
   return {
@@ -41,19 +48,7 @@ X.Audio = (function() {
 
     toggle: function(on) {
 
-      // If ON, start the oscillator
-
-      if (on) {
-        _oscillator.start();
-      }
-
-      // If OFF, stop the oscillator and create a new
-      // one for the next sound
-
-      else {
-        _oscillator.stop();
-        create_oscillator();
-      }
+      on ? _oscillator.start() : _oscillator.stop();
     }
 
   };

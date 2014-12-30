@@ -98,10 +98,14 @@ X.Video = (function() {
 
       // Loop through the pixels
 
-      for (var i = 0; i < n; ++i)
+      for (var i = 0; i < n; ++i) {
+
+        var line = X.CPU.memory[address + i];
+
         for (var j = 0; j < 8; ++j)
-          if (X.Utils.bit(X.CPU.memory[address + i], 7 - j) && this.pixel(x + j, y + i))
+          if (!!(line & 1 << (7 - j)) && this.pixel(x + j, y + i))
             collision = true;
+      }
 
       return collision;
     },
