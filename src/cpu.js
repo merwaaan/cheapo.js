@@ -6,6 +6,10 @@ X.CPU = (function() {
 
   var _waiting_register = null;
 
+  /**
+    * Font data copied at address 0
+    */
+
   var _font = [
     0xF0, 0x90, 0x90, 0x90, 0xF0,
     0x20, 0x60, 0x20, 0x20, 0x70,
@@ -150,7 +154,7 @@ X.CPU = (function() {
 
       for (var i = 0; i < range; ++i) {
 
-        var chunk = ('00' + i.toString(16)).substr(wildcards_length);
+        var chunk = ('00' + i.toString(16)).substr(-wildcards_length);
         var opcode = before + chunk + after;
 
         var parameters = [];
@@ -181,7 +185,7 @@ X.CPU = (function() {
 
     memory: new Uint8Array(0x1000),
 
-    frequency: 100,
+    frequency: 50,
 
     /**
       * Registers

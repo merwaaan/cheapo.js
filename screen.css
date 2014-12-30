@@ -11,5 +11,28 @@ body {
 }
 
 canvas {
+	margin: 1em;
+	border: 1px solid lightgrey;
+}
 
+header {
+	margin: 1em;
+}
+
+h1 {
+	font-size: 3em;
+	background-color: #1a1a1a;
+	color: white;
+	display: inline-block;
+	padding: 0.3em;
+}
+
+h2 {
+	font-size: 1.2em;
+	background-color: #1a1a1a;
+	color: white;
+	display: inline-block;
+	padding: 0.6em;
+	padding-left: 0.85em;
+	border-bottom: 0.2em solid #e61d5f;
 }

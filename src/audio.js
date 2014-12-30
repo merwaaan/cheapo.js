@@ -48,7 +48,14 @@ X.Audio = (function() {
 
     toggle: function(on) {
 
-      on ? _oscillator.start() : _oscillator.stop();
+      // XXX
+      // Try/catch because of the error when stop an unstarted node
+      // Is there a way to check if it started???
+
+      try {
+        on && _started ? _oscillator.start() : _oscillator.stop();
+      }
+      catch (e) {}
     }
 
   };

@@ -40,7 +40,6 @@ X.Input = (function() {
       document.addEventListener('keydown', function(event) {
         if (event.keyCode in _mapping) {
           _keys[_mapping[event.keyCode]] = true;
-          event.preventDefault();
         }
       });
 

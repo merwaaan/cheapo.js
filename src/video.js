@@ -12,11 +12,11 @@ X.Video = (function() {
     * Colors
     */
 
-  var _color = [0, 0, 0];
+  var _color = [0x2F, 0xA1, 0xD6];
   var _background = [255, 255, 255];
 
   function css_color(color) {
-    return '#' + color._map(function(i){ return parseInt(i).toString(16) }).join('');
+    return '#' + color.map(function(i){ return parseInt(i).toString(16) }).join('');
   }
 
   function set_color(color) {
@@ -39,7 +39,7 @@ X.Video = (function() {
     * Canvas size
     */
 
-  var _scale = 1;
+  var _scale = 6;
 
   function set_scale(scale) {
 
@@ -56,6 +56,7 @@ X.Video = (function() {
     _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
     // XXX weird bug when changing the scale before playing a game
+    // XXX also bugs when scaling (not clearinf properly)
 
     for (var i = 0; i < _map.length; ++i)
       if (_map[i])
@@ -75,7 +76,7 @@ X.Video = (function() {
 
       var canvas = document.querySelector('canvas');
       _ctx = canvas.getContext('2d');
-      _ctx.fillStyle = '#000000';
+      set_color(_color);
     },
 
     reset: function() {
