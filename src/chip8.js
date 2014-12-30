@@ -7,6 +7,7 @@ X.Chip8 = (function() {
   return {
 
     running: false,
+    interval: null,
 
     init: function() {
 
@@ -57,31 +58,44 @@ X.Chip8 = (function() {
       X.Input.reset();
     },
 
-    load: function(buffer) {
+    load: function(name) {
 
-      this.reset();
-      X.CPU.load(buffer);
-      //this.run();
+      var request = new XMLHttpRequest();
+      request.open('GET', 'roms/' + name, true);
+      request.responseType = 'arraybuffer';
+
+      request.onload = function() {
+        X.Chip8.reset();
+        X.CPU.load(request.response);
+        //X.Chip8.run();
+      };
+
+      request.send(null);
     },
 
     run: function() {
+
       if (!this.running) {
         this.running = true;
-        requestAnimationFrame(this.frame.bind(this));
+        this.interval = setInterval(this.frame, 10);
+        //requestAnimationFrame(this.frame.bind(this));
       }
     },
 
     pause: function() {
+
       this.running = false;
     },
 
     frame: function(time) {
 
-      X.CPU.step();
+      for (var i = 0; i < 1; ++i)
+        X.CPU.step();
 
       // Repeat...
-      if (this.running)
+      /*if (this.running)
         requestAnimationFrame(this.frame.bind(this));
+        */
     }
 
   };

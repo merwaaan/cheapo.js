@@ -8,16 +8,45 @@ X.Video = (function() {
 
   var map = [];
 
+  /**
+    *
+    */
+
+  var _color = [0, 0, 0];
+  var _background = [255, 255, 255];
+
+  function css_color(color) {
+    return '#' + color.map(function(i){ return parseInt(i).toString(16) }).join('');
+  }
+
+  function set_color(color) {
+
+    for (var i = 0; i < 3; ++i)
+      _color[i] = color[i];
+
+    ctx.fillStyle = css_color(color);
+  }
+
+  function set_background(color) {
+
+    for (var i = 0; i < 3; ++i)
+      _background[i] = color[i];
+
+    document.querySelector('canvas').style.backgroundColor = css_color(color);
+  }
+
   return {
 
-    color: [0, 0, 0],
-    background: [255, 255, 255],
+    get color() { return _color }, set color(x) { set_color(x) },
+    get background() { return _background }, set background(x) { set_background(x) },
+
+    wrap: false,
 
     init: function() {
 
       var canvas = document.querySelector('canvas');
-      this.ctx = canvas.getContext('2d');
-      this.ctx.fillStyle = '#000000';
+      ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#000000';
     },
 
     reset: function() {
@@ -25,13 +54,16 @@ X.Video = (function() {
       this.clear();
 
       // Reset the collision map
-      for (var i = 0, l = this.ctx.canvas.width * this.ctx.canvas.height; i < l; ++i)
+      for (var i = 0, l = ctx.canvas.width * ctx.canvas.height; i < l; ++i)
         map[i] = false;
     },
 
     sprite: function(address, x, y, n) {
 
       var collision = false;
+
+      if (n == 0) // Otherwise HAP is not drawn in EMUTEST (wtf?)
+        n = 16;
 
       for (var i = 0; i < n; ++i)
         for (var j = 0; j < 8; ++j)
@@ -43,24 +75,31 @@ X.Video = (function() {
 
     pixel: function(x, y) {
 
-      var index = y * 8 + x;
+      // Wrap the coordinates around the canvas
+
+      if (this.wrap) {
+        x %= ctx.canvas.width;
+        y %= ctx.canvas.height;
+      }
 
       // XOR mode: erase and return a collision if a pixel is already here
 
+      var index = y * ctx.canvas.width + x;
+
       if (map[index]) {
-        this.ctx.clearRect(x, y, 1, 1);
+        ctx.clearRect(x, y, 1, 1);
         map[index] = false;
         return true;
       }
 
-      this.ctx.fillRect(x, y, 1, 1);
+      ctx.fillRect(x, y, 1, 1);
       map[index] = true;
       return false;
     },
 
     clear: function() {
 
-      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
   };

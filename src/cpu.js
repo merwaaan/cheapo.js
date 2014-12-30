@@ -13,6 +13,7 @@ X.CPU = (function() {
     0xF0, 0x10, 0xF0, 0x10, 0xF0,
     0x90, 0x90, 0xF0, 0x10, 0x10,
     0xF0, 0x80, 0xF0, 0x10, 0xF0,
+    0xF0, 0x80, 0xF0, 0x90, 0xF0,
     0xF0, 0x10, 0x20, 0x40, 0x40,
     0xF0, 0x90, 0xF0, 0x90, 0xF0,
     0xF0, 0x90, 0xF0, 0x10, 0xF0,
@@ -25,174 +26,94 @@ X.CPU = (function() {
   ];
 
   /**
-    * Generic instructions
+    * Instruction set
+    *
+    * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+    * http://mattmik.com/chip8.html
     */
 
   var instructions = {
 
-    ADD: function(params) {
-      var x = params[0].get() + params[1].get();
-      X.CPU.V[0xF] = x > 0xFF ? 1 : 0;
-      params[0].set(x & 0xFF);
+    // Flow control
+
+    JP_addr: function(addr) { this.PC = addr - 2 },
+    JP_V0_addr: function(addr) { this.PC = addr + this.V[0] - 2 },
+
+    CALL_addr: function(addr) {
+      this.stack[++this.SP] = this.PC;
+      this.PC = addr;
     },
 
-    ADD_I: function(params) {
-      X.CPU.I += params[0].get();
+    RET: function() { this.PC = this.stack[this.SP--] },
+
+    SE_Vx_byte: function(x, byte) { if (this.V[x] == byte) this.PC += 2 },
+    SE_Vx_Vy: function(x, y) { if (this.V[x] == this.V[y]) this.PC += 2 },
+    SNE_Vx_byte: function(x, byte) { if (this.V[x] != byte) this.PC += 2 },
+    SNE_Vx_Vy: function(x, y) { if (this.V[x] != this.V[y]) this.PC += 2 },
+    SKP_Vx: function(x) { if (X.Input.down(this.V[x])) this.PC += 2 },
+    SKNP_Vx: function(x) { if (!X.Input.down(this.V[x])) this.PC += 2 },
+
+    // Arithmetic
+
+    OR_Vx_Vy: function(x, y) { this.V[x] |= this.V[y] },
+    AND_Vx_Vy: function(x, y) { this.V[x] &= this.V[y] },
+    XOR_Vx_Vy: function(x, y) { this.V[x] ^= this.V[y] },
+
+    ADD_Vx_byte: function(x, byte) { this.V[x] = (this.V[x] + byte) & 0xFF },
+    ADD_Vx_Vy: function(x, y) {
+      var sum = this.V[x] + this.V[y];
+      this.V[0xF] = +(sum > 0xFF);
+      this.V[x] = sum & 0xFF
+    },
+    ADD_I_Vx: function(x) { this.I = (this.I + this.V[x]) & 0xFFF },
+
+    SUB_Vx_Vy: function(x, y) {
+      this.V[0xF] = +(this.V[x] > this.V[y]);
+      this.V[x] = (this.V[x] - this.V[y]) & 0xFF;
+    },
+    SUBN_Vx_Vy: function(x, y) {
+      this.V[0xF] = +(this.V[y] > this.V[x]);
+      this.V[x] = (this.V[y] - this.V[x]) & 0xFF;
     },
 
-    ADD_nocarry: function(params) {
-      params[0].set((params[0].get() + params[1].get()) & 0xFF);
+    SHL_Vx_Vy: function(x, y) { // VY???
+      this.V[0xF] = (this.V[x] & 0x80) >> 7;
+      this.V[x] = (this.V[x] << 1) & 0xFF;
+    },
+    SHR_Vx_Vy: function(x, y) { // VY???
+      this.V[0xF] = this.V[x] & 1;
+      this.V[x] = this.V[x] >> 1;
     },
 
-    AND: function(params) {
-      params[0].set(params[0].get() & params[1].get());
+    RND_Vx_byte: function(x, byte) { this.V[x] = Math.floor(Math.random() * 0xFF) & byte },
+
+    // Data manipulation
+
+    LD_Vx_byte: function(x, byte) { this.V[x] = byte },
+    LD_Vx_Vy: function(x, y) { this.V[x] = this.V[y] },
+    LD_I_addr: function(addr) { this.I = addr },
+    LD_Vx_DT: function(x) { this.V[x] = this.DT },
+    LD_DT_Vx: function(x) { this.DT = this.V[x] },
+    LD_ST_Vx: function(x) { this.ST = this.V[x] },
+    LD_F_Vx: function(x) { this.I = this.V[x] * 5 },
+    LD_Vx_K: function(x) { waiting_register = x },
+    LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; this.I += x + 1; },
+    LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; this.I += x + 1; },
+
+    LD_B_Vx: function(x) {
+      var value = this.V[x], n = 100;
+      for (var i = 0; i < 3; ++i) {
+        this.memory[this.I + i] = Math.floor(value / n);
+        value %= n;
+        n /= 10;
+      }
     },
 
-    CALL: function(params) {
-      X.CPU.stack[++X.CPU.SP] = X.CPU.PC;
-      X.CPU.PC = params[0].get();
-    },
+    // Display
 
-    CLS: function() {
-      X.Video.clear();
-    },
+    CLS: function() { X.Video.clear() },
+    DRW_Vx_Vy_nibble: function(x, y, nibble) { this.V[0xF] = +X.Video.sprite(this.I, this.V[x], this.V[y], nibble) }
 
-    DRW: function(params) {
-      X.CPU.V[0xF] = X.Video.sprite(X.CPU.I, params[0].get(), params[1].get(), params[2].get()) ? 1 : 0;
-    },
-
-    LD: function(params) {
-      params[0].set(params[1].get());
-    },
-
-    LD_bcd: function(params) {
-      var x = params[0].get();
-      x -= (X.CPU.memory[X.CPU.I] = Math.floor(x/100));
-      x -= (X.CPU.memory[X.CPU.I+1] = Math.floor(x/10));
-      X.CPU.memory[X.CPU.I+2] = x;
-    },
-
-    LD_keypress: function(params) {
-      waiting_register = params[0].get();
-    },
-
-    LD_font: function(params) {
-      X.CPU.I = params[0].get() * 5;
-    },
-
-    LD_I: function(params) {
-      X.CPU.I = params[0].get();
-    },
-
-    LD_V_DT: function(params) {
-      params[0].set(X.CPU.DT);
-    },
-
-    LD_DT_V: function(params) {
-      X.CPU.DT = params[0].get();
-    },
-
-    LD_ST_V: function(params) {
-      X.CPU.ST = params[0].get();
-    },
-
-    LD_I_regs: function(params) {
-      var x = params[0].get();
-      for (var i = 0; i <= x; ++i)
-        X.CPU.memory[X.CPU.I + i] = X.CPU.V[i];
-      X.CPU.I += x + 1;
-      if (X.CPU.I % 2 != 0) X.CPU.I += 1;
-    },
-
-    LD_regs_I: function(params) {
-      var x = params[0].get();
-      for (var i = 0; i <= x; ++i)
-        X.CPU.V[i] = X.CPU.memory[X.CPU.I + i];
-      X.CPU.I += x + 1;
-      if (X.CPU.I % 2 != 0) X.CPU.I += 1;
-    },
-
-    JP: function(params) {
-      X.CPU.PC = params[0].get() + (params.length > 1 ? X.CPU.V[0] : 0) - 2;
-    },
-
-    OR: function(params) {
-      params[0].set(params[0].get() | params[1].get());
-    },
-
-    RET: function() {
-      X.CPU.PC = X.CPU.stack[X.CPU.SP--];
-    },
-
-    RND: function(params) {
-      var x = Math.floor(Math.random() * 0xFF);
-      params[0].set(x & params[1].get());
-    },
-
-    SE: function(params) {
-      if (params[0].get() == params[1].get())
-        X.CPU.PC += 2;
-    },
-
-    SHL: function(params) {
-      var b = params[1].get();
-      X.CPU.V[0xF] = X.Utils.bit(b, 7) ? 1 : 0;
-      b = (b << 1) & 0xFF;
-      params[0].set(b);
-      params[1].set(b);
-    },
-
-    SHR: function(params) {
-      var b = params[1].get();
-      X.CPU.V[0xF] = X.Utils.bit(b, 0) ? 1 : 0;
-      b >>= 1;
-      params[0].set(b);
-      params[1].set(b);
-    },
-
-    SKP: function(params) {
-      if (X.Input.down(params[0].get()))
-        X.CPU.PC += 2;
-    },
-
-    SKNP: function(params) {
-      if (!X.Input.down(params[0].get()))
-        X.CPU.PC += 2;
-    },
-
-    SNE: function(params) {
-      if (params[0].get() != params[1].get())
-        X.CPU.PC += 2;
-    },
-
-    SUB: function(params) {
-      var a = params[0].get(), b = params[1].get();
-      params[0].set((a - b) & 0xFF);
-      X.CPU.V[0xF] = a < b ? 0 : 1;
-    },
-
-    SUBN: function(params) {
-      var a = params[0].get(), b = params[1].get();
-      params[0].set((b - a) & 0xFF);
-      X.CPU.V[0xF] = b < a ? 0 : 1;
-    },
-
-    XOR: function(params) {
-      params[0].set(params[0].get() ^ params[1].get());
-    }
-
-  };
-
-  /**
-    * Accessors to feed different values to the instructions depending on the opcode
-    */
-
-  var accessors = {
-    Vx: { get: function(x) { return X.CPU.V[x]; }, set: function(x, val) { X.CPU.V[x] = val; } },
-    I: { get: function(x) { return X.CPU.I; }, set: function(x, val) { X.CPU.I = val; } },
-    DT: { get: function(x) { return X.CPU.DT; }, set: function(x, val) { X.CPU.DT = val; } },
-    ST: { get: function(x) { return X.CPU.ST; }, set: function(x, val) { X.CPU.ST = val; } },
-    value: { get: function(x) { return x; } }
   };
 
   /**
@@ -201,34 +122,31 @@ X.CPU = (function() {
 
   var jumptable = {};
 
-  function register(pattern, instruction, accessors) {
+  function register(pattern, instruction) {
 
     // Isolate the "wildcards" in the opcode pattern
     // eg. '8xy0' -> ['x', 'y']
 
     var wildcards = pattern.match(/x|y|nnn|n|kk/g);
 
-    // If there is no wildcard (unique opcode) just put the
-    // instruction in the jumptable
+    // If there is no wildcard (unique opcode without parameters)
+    // just put the instruction in the jumptable
 
-    if (!wildcards) {
+    if (!wildcards)
       jumptable[parseInt(pattern, 16)] = {
-        instruction: instruction,
+        instruction: instruction
       };
-    }
 
     // If there are wildcards, enumerate the possible opcodes and
     // fill the jumptable with the instruction and precomputed parameters
 
     else {
 
-      var wildcards_length = wildcards.reduce(function(sum, wildcard) { return sum + wildcard.length; }, 0);
+      var wildcards_length = wildcards.join('').length;
       var range = Math.pow(2, wildcards_length * 4);
 
       var before = pattern.slice(0, pattern.indexOf(wildcards[0]));
-      var after = pattern.slice(before.length+wildcards_length);
-
-      var accessors = Array.prototype.slice.call(arguments, 2);
+      var after = pattern.slice(before.length + wildcards_length);
 
       for (var i = 0; i < range; ++i) {
 
@@ -243,23 +161,18 @@ X.CPU = (function() {
           var parameter = parseInt(opcode.slice(cursor, cursor + wildcards[j].length), 16);
 
           parameters.push(
-            function(accessor, parameter) {
-              return {
-                get: function() { return accessor.get(parameter); },
-                set: function(x) { accessor.set(parameter, x); }
-              };
-            }(accessors[j], parameter)
+            function(parameter) {
+              return parameter;
+            }(parameter)
           );
 
           cursor += wildcards[j].length;
         }
 
-        var opcode_data = {
+        jumptable[parseInt(opcode, 16)] = {
           instruction: instruction,
           parameters: parameters
         };
-
-        jumptable[parseInt(opcode, 16)] = opcode_data;
       }
     }
   };
@@ -267,6 +180,8 @@ X.CPU = (function() {
   return {
 
     memory: new Uint8Array(0x1000),
+
+    frequency: 100,
 
     /**
       * Registers
@@ -291,40 +206,38 @@ X.CPU = (function() {
 
       register('00E0', instructions.CLS);
       register('00EE', instructions.RET);
-      register('1nnn', instructions.JP, accessors.value);
-      register('2nnn', instructions.CALL, accessors.value);
-      register('3xkk', instructions.SE, accessors.Vx, accessors.value);
-      register('4xkk', instructions.SNE, accessors.Vx, accessors.value);
-      register('5xy0', instructions.SE, accessors.Vx, accessors.Vx);
-      register('6xkk', instructions.LD, accessors.Vx, accessors.value);
-      register('7xkk', instructions.ADD_nocarry, accessors.Vx, accessors.value);
-      register('8xy0', instructions.LD, accessors.Vx, accessors.Vx);
-      register('8xy1', instructions.OR, accessors.Vx, accessors.Vx);
-      register('8xy2', instructions.AND, accessors.Vx, accessors.Vx);
-      register('8xy3', instructions.XOR, accessors.Vx, accessors.Vx);
-      register('8xy4', instructions.ADD, accessors.Vx, accessors.Vx);
-      register('8xy5', instructions.SUB, accessors.Vx, accessors.Vx);
-      register('8xy6', instructions.SHR, accessors.Vx, accessors.Vx);
-      register('8xy7', instructions.SUBN, accessors.Vx, accessors.Vx);
-      register('8xyE', instructions.SHL, accessors.Vx, accessors.Vx);
-      register('9xy0', instructions.SNE, accessors.Vx, accessors.Vx);
-      register('Annn', instructions.LD_I, accessors.value); // TODO
-      register('Bnnn', instructions.JP, accessors.value, accessors.value);
-      register('Cxkk', instructions.RND, accessors.Vx, accessors.value);
-      register('Dxyn', instructions.DRW, accessors.Vx, accessors.Vx, accessors.value);
-      register('Ex9E', instructions.SKP, accessors.Vx);
-      register('ExA1', instructions.SKNP, accessors.Vx);
-      register('Fx07', instructions.LD_V_DT, accessors.Vx); // TODO use the same generic function for all LDs
-      register('Fx0A', instructions.LD_keypress, accessors.value);
-      register('Fx15', instructions.LD_DT_V, accessors.VX); // TODO
-      register('Fx18', instructions.LD_ST_V, accessors.VX); // TODO
-      register('Fx1E', instructions.ADD_I, accessors.Vx); // TODO
-      register('Fx29', instructions.LD_font, accessors.Vx);
-      register('Fx33', instructions.LD_bcd, accessors.Vx);
-      register('Fx55', instructions.LD_I_regs, accessors.Vx);
-      register('Fx65', instructions.LD_regs_I, accessors.Vx);
-
-      console.log(jumptable);
+      register('1nnn', instructions.JP_addr);
+      register('2nnn', instructions.CALL_addr);
+      register('3xkk', instructions.SE_Vx_byte);
+      register('4xkk', instructions.SNE_Vx_byte);
+      register('5xy0', instructions.SE_Vx_Vy);
+      register('6xkk', instructions.LD_Vx_byte);
+      register('7xkk', instructions.ADD_Vx_byte);
+      register('8xy0', instructions.LD_Vx_Vy);
+      register('8xy1', instructions.OR_Vx_Vy);
+      register('8xy2', instructions.AND_Vx_Vy);
+      register('8xy3', instructions.XOR_Vx_Vy);
+      register('8xy4', instructions.ADD_Vx_Vy);
+      register('8xy5', instructions.SUB_Vx_Vy);
+      register('8xy6', instructions.SHR_Vx_Vy);
+      register('8xy7', instructions.SUBN_Vx_Vy);
+      register('8xyE', instructions.SHL_Vx_Vy);
+      register('9xy0', instructions.SNE_Vx_Vy);
+      register('Annn', instructions.LD_I_addr);
+      register('Bnnn', instructions.JP_V0_addr);
+      register('Cxkk', instructions.RND_Vx_byte);
+      register('Dxyn', instructions.DRW_Vx_Vy_nibble);
+      register('Ex9E', instructions.SKP_Vx);
+      register('ExA1', instructions.SKNP_Vx);
+      register('Fx07', instructions.LD_Vx_DT);
+      register('Fx0A', instructions.LD_Vx_K);
+      register('Fx15', instructions.LD_DT_Vx);
+      register('Fx18', instructions.LD_ST_Vx);
+      register('Fx1E', instructions.ADD_I_Vx);
+      register('Fx29', instructions.LD_F_Vx);
+      register('Fx33', instructions.LD_B_Vx);
+      register('Fx55', instructions.LD_I_Vx);
+      register('Fx65', instructions.LD_Vx_I);
     },
 
     reset: function() {
@@ -372,21 +285,24 @@ X.CPU = (function() {
       // Fetch the implementation cached in the jumptable
 
       var opcode_data = jumptable[opcode];
-      if (!opcode_data)
+      if (opcode_data) {
+
+        console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
+
+        // Execute
+
+        opcode_data.instruction.apply(this, opcode_data.parameters);
+
+        // Update the timers
+
+        if (this.DT > 0) --this.DT;
+        if (this.ST > 0) --this.ST;
+      }
+      else {
         console.log('Undefined opcode [%s]', opcode.toString(16));
-      else
-        console.log(opcode.toString(16), opcode_data.instruction.prototype);
+      }
 
-      // Execute
-
-      opcode_data.instruction(opcode_data.parameters);
-
-      // Update the timers
-
-      if (this.DT > 0) --this.DT;
-      if (this.ST > 0) --this.ST;
-
-      X.CPU.PC += 2;
+      this.PC = (this.PC + 2) & 0xFFF;
     },
 
   };
