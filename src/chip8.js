@@ -32,22 +32,6 @@ X.Chip8 = (function() {
 
         reader.readAsArrayBuffer(this.files[0]);
       });
-
-      var hosted_rom_select = document.querySelector('select#hosted_rom');
-      hosted_rom_select.addEventListener('change', function(event) {
-
-        var name = event.target.selectedOptions[0].textContent;
-
-        var request = new XMLHttpRequest();
-        request.open('GET', 'roms/' + name, true);
-        request.responseType = 'arraybuffer';
-
-        request.onload = function() {
-          chip8.load(request.response);
-        };
-
-        request.send(null);
-      });
     },
 
     reset: function() {

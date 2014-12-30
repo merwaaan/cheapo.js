@@ -4,9 +4,9 @@ X.Video = (function() {
 
   'use strict';
 
-  var ctx;
+  var _ctx;
 
-  var map = [];
+  var _map = [];
 
   /**
     * Colors
@@ -16,7 +16,7 @@ X.Video = (function() {
   var _background = [255, 255, 255];
 
   function css_color(color) {
-    return '#' + color.map(function(i){ return parseInt(i).toString(16) }).join('');
+    return '#' + color._map(function(i){ return parseInt(i).toString(16) }).join('');
   }
 
   function set_color(color) {
@@ -24,7 +24,7 @@ X.Video = (function() {
     for (var i = 0; i < 3; ++i)
       _color[i] = color[i];
 
-    ctx.fillStyle = css_color(color);
+    _ctx.fillStyle = css_color(color);
   }
 
   function set_background(color) {
@@ -45,21 +45,21 @@ X.Video = (function() {
 
     _scale = scale;
 
-    ctx.canvas.width = 64 * _scale;
-    ctx.canvas.height = 32 * _scale;
+    _ctx.canvas.width = 64 * _scale;
+    _ctx.canvas.height = 32 * _scale;
 
     redraw();
   }
 
   function redraw() {
 
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
     // XXX weird bug when changing the scale before playing a game
 
-    for (var i = 0; i < map.length; ++i)
-      if (map[i])
-        ctx.fillRect((i % 64) * _scale, parseInt(i / 64) * _scale, _scale, _scale);
+    for (var i = 0; i < _map.length; ++i)
+      if (_map[i])
+        _ctx.fillRect((i % 64) * _scale, parseInt(i / 64) * _scale, _scale, _scale);
   }
 
   return {
@@ -74,25 +74,29 @@ X.Video = (function() {
     init: function() {
 
       var canvas = document.querySelector('canvas');
-      ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#000000';
+      _ctx = canvas.getContext('2d');
+      _ctx.fillStyle = '#000000';
     },
 
     reset: function() {
 
       this.clear();
 
-      // Reset the collision map
-      for (var i = 0, l = ctx.canvas.width * ctx.canvas.height; i < l; ++i)
-        map[i] = false;
+      // Reset the collision _map
+      for (var i = 0, l = _ctx.canvas.width * _ctx.canvas.height; i < l; ++i)
+        _map[i] = false;
     },
 
     sprite: function(address, x, y, n) {
 
       var collision = false;
 
-      if (n == 0) // Otherwise HAP is not drawn in EMUTEST (wtf?)
+      // A height of 0 draws the whole 16px sprite
+
+      if (n == 0)
         n = 16;
+
+      // Loop through the pixels
 
       for (var i = 0; i < n; ++i)
         for (var j = 0; j < 8; ++j)
@@ -107,28 +111,28 @@ X.Video = (function() {
       // Wrap the coordinates around the canvas
 
       if (this.wrap) {
-        x %= ctx.canvas.width;
-        y %= ctx.canvas.height;
+        x %= _ctx.canvas.width;
+        y %= _ctx.canvas.height;
       }
 
       // XOR mode: erase and return a collision if a pixel is already here
 
-      var index = y * ctx.canvas.width + x;
+      var index = y * _ctx.canvas.width + x;
 
-      if (map[index]) {
-        ctx.clearRect(x * _scale, y * _scale, _scale, _scale);
-        map[index] = false;
+      if (_map[index]) {
+        _ctx.clearRect(x * _scale, y * _scale, _scale, _scale);
+        _map[index] = false;
         return true;
       }
 
-      ctx.fillRect(x * _scale, y * _scale, _scale, _scale);
-      map[index] = true;
+      _ctx.fillRect(x * _scale, y * _scale, _scale, _scale);
+      _map[index] = true;
       return false;
     },
 
     clear: function() {
 
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
     }
 
   };
