@@ -56,7 +56,7 @@ Cheapo.Video = (function() {
     _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
     // XXX weird bug when changing the scale before playing a game
-    // XXX also bugs when scaling (not clearinf properly)
+    // XXX also bugs when scaling (not clearing properly)
 
     for (var i = 0; i < _map.length; ++i)
       if (_map[i])
@@ -84,8 +84,9 @@ Cheapo.Video = (function() {
       this.clear();
 
       // Reset the collision _map
-      for (var i = 0, l = _ctx.canvas.width * _ctx.canvas.height; i < l; ++i)
-        _map[i] = false;
+      _map = [];
+      for (var i = 0, l = 64 * 32; i < l; ++i)
+        _map.push(false);
     },
 
     sprite: function(address, x, y, n) {
@@ -105,7 +106,7 @@ Cheapo.Video = (function() {
 
         for (var j = 0; j < 8; ++j)
           if (!!(line & 1 << (7 - j)) && this.pixel(x + j, y + i))
-            collision = true;
+              collision = true;
       }
 
       return collision;
@@ -116,13 +117,13 @@ Cheapo.Video = (function() {
       // Wrap the coordinates around the canvas
 
       if (this.wrap) {
-        x %= _ctx.canvas.width;
-        y %= _ctx.canvas.height;
+        x %= 64;
+        y %= 32;
       }
 
       // XOR mode: erase and return a collision if a pixel is already here
 
-      var index = y * _ctx.canvas.width + x;
+      var index = y * 64 + x;
 
       if (_map[index]) {
         _ctx.clearRect(x * _scale, y * _scale, _scale, _scale);

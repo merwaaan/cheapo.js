@@ -45,7 +45,7 @@ Cheapo.CPU = (function() {
 
     CALL_addr: function(addr) {
       this.stack[++this.SP] = this.PC;
-      this.PC = addr;
+      this.PC = addr - 2;
     },
 
     RET: function() { this.PC = this.stack[this.SP--] },
@@ -104,7 +104,7 @@ Cheapo.CPU = (function() {
     LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // inc I???
     LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ }, // ...
 
-    LD_B_Vx: function(x) {
+    LD_B_Vx: function(x) { // TODO simplify?
       var value = this.V[x], n = 100;
       for (var i = 0; i < 3; ++i) {
         this.memory[this.I + i] = Math.floor(value / n);
