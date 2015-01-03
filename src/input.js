@@ -1,17 +1,17 @@
-var X = X || {};
+var Cheapo = Cheapo || {};
 
 Cheapo.Input = (function() {
 
   'use strict';
 
   /**
-    *
+    * Keyboard state
     */
 
   var _keys = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 
   /**
-    *
+    * Mapping between modern keyboard and weird prehistoric hex keyboard
     */
 
   var _mapping = {
@@ -35,16 +35,24 @@ Cheapo.Input = (function() {
 
   return {
 
+    // Callback function called on key press
+    callback: null,
+
     init: function() {
 
       document.addEventListener('keydown', function(event) {
         if (event.keyCode in _mapping) {
+
           _keys[_mapping[event.keyCode]] = true;
+
+          if (this.callback)
+            this.callback(_mapping[event.keyCode]);
         }
-      });
+      }.bind(this));
 
       document.addEventListener('keyup', function(event) {
         if (event.keyCode in _mapping) {
+
           _keys[_mapping[event.keyCode]] = false;
         }
       });
@@ -54,20 +62,13 @@ Cheapo.Input = (function() {
 
       for (var i = 0; i < _keys.length; ++i)
         _keys[i] = false;
+
+      this.callback = null;
     },
 
     down: function(key) {
 
       return _keys[key];
-    },
-
-    any: function() {
-
-      for (var i = 0; i < _keys.length; ++i)
-        if (_keys[i])
-          return i;
-
-      return null;
     }
 
   };

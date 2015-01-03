@@ -4,7 +4,11 @@ Cheapo.CPU = (function() {
 
   'use strict';
 
-  var _waiting_register = null;
+  /**
+    *
+    */
+
+  var _waiting = false;
 
   /**
     * Font data copied at address 0
@@ -83,10 +87,16 @@ Cheapo.CPU = (function() {
     SHL_Vx_Vy: function(x, y) { // VY???
       this.V[0xF] = (this.V[x] & 0x80) >> 7;
       this.V[x] <<= 1;
+      /*this.V[0xF] = (this.V[y] & 0x80) >> 7;
+      this.V[x] = this.V[y] << 1;
+      this.V[y] = this.V[y] << 1;*/
     },
     SHR_Vx_Vy: function(x, y) { // VY???
       this.V[0xF] = this.V[x] & 1;
       this.V[x] >>= 1;
+      /*this.V[0xF] = this.V[y] & 1;
+      this.V[x] = this.V[y] >> 1;
+      this.V[y] = this.V[y] >> 1;*/
     },
 
     RND_Vx_byte: function(x, byte) { this.V[x] = Math.floor(Math.random() * 0xFF) & byte },
@@ -100,7 +110,6 @@ Cheapo.CPU = (function() {
     LD_DT_Vx: function(x) { this.DT = this.V[x] },
     LD_ST_Vx: function(x) { this.ST = this.V[x] },
     LD_F_Vx: function(x) { this.I = this.V[x] * 5 },
-    LD_Vx_K: function(x) { _waiting_register = x },
     LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // inc I???
     LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ }, // ...
 
@@ -111,6 +120,15 @@ Cheapo.CPU = (function() {
         value %= n;
         n /= 10;
       }
+    },
+
+    LD_Vx_K: function(x) {
+      this.wait();
+      Cheapo.Input.callback = function(key) {
+        this.callback = null;
+        Cheapo.CPU.V[x] = key;
+        Cheapo.CPU.wait(false);
+      }.bind(Cheapo.Input);
     },
 
     // Display
@@ -273,17 +291,10 @@ Cheapo.CPU = (function() {
 
     step: function() {
 
-      // Check for user input after a wait instruction
+      // Don't do anything in we are waiting for user input
 
-      if (_waiting_register) {
-        var key = Cheapo.Input.any();
-        if (key !== null) {
-          this.V[_waiting_register] = key;
-          _waiting_register = null;
-        }
-        else
-          return;
-      }
+      if (_waiting)
+        return;
 
       // Get the current opcode
 
@@ -312,6 +323,9 @@ Cheapo.CPU = (function() {
       this.PC = (this.PC + 2) & 0xFFF;
     },
 
+    wait: function(on) {
+      _waiting = on === undefined ? true : on;
+    }
   };
 
 })();

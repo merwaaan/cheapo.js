@@ -53,14 +53,15 @@
       hosted.onChange(function(name) {
 
         var request = new XMLHttpRequest(name);
-        request.open('GET', 'roms/' + name, true);
+        request.open('GET', 'roms/' + name);
+        request.overrideMimeType("text/plain; charset=x-user-defined");
         request.responseType = 'arraybuffer';
 
         request.onload = function() {
           Cheapo.Main.load(request.response);
         };
 
-        request.send(null);
+        request.send();
       });
 
       // ... Or load a local file
