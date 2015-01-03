@@ -5,10 +5,17 @@ Cheapo.CPU = (function() {
   'use strict';
 
   /**
-    *
+    * Is the CPU waiting for a keypress?
     */
 
   var _waiting = false;
+
+  /**
+    * Accumulate time over several frames
+    * (useful for updating the timers)
+    */
+
+  var _dt_acc = 0;
 
   /**
     * Font data copied at address 0
@@ -108,7 +115,7 @@ Cheapo.CPU = (function() {
     LD_I_addr: function(addr) { this.I = addr },
     LD_Vx_DT: function(x) { this.V[x] = this.DT },
     LD_DT_Vx: function(x) { this.DT = this.V[x] },
-    LD_ST_Vx: function(x) { this.ST = this.V[x] },
+    LD_ST_Vx: function(x) { if ((this.ST = this.V[x]) > 1) Cheapo.Audio.toggle(true) },
     LD_F_Vx: function(x) { this.I = this.V[x] * 5 },
     LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // inc I???
     LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ }, // ...
@@ -264,6 +271,9 @@ Cheapo.CPU = (function() {
 
     reset: function() {
 
+      _waiting = false;
+      _dt_acc = 0;
+
       // Reset the registers
 
       this.PC = 0x200;
@@ -289,43 +299,53 @@ Cheapo.CPU = (function() {
         this.memory[0x200 + i] = buffer[i];
     },
 
-    step: function() {
+    step: function(dt) {
 
       // Don't do anything in we are waiting for user input
 
-      if (_waiting)
-        return;
+      if (!_waiting) {
 
-      // Get the current opcode
+        // Get the current opcode
 
-      var opcode = this.memory[Cheapo.CPU.PC] << 8 | this.memory[Cheapo.CPU.PC + 1];
+        var opcode = this.memory[Cheapo.CPU.PC] << 8 | this.memory[Cheapo.CPU.PC + 1];
 
-      // Fetch the implementation cached in the jumptable
+        // Fetch the implementation cached in the jumptable
 
-      var opcode_data = _jumptable[opcode];
-      if (opcode_data) {
+        var opcode_data = _jumptable[opcode];
+        if (opcode_data) {
+          console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
+          opcode_data.instruction.apply(this, opcode_data.parameters);
+        }
+        else {
+          console.log('Undefined opcode [%s]', opcode.toString(16));
+        }
 
-        console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
-
-        // Execute
-
-        opcode_data.instruction.apply(this, opcode_data.parameters);
-
-        // Update the timers
-
-        if (this.DT > 0) --this.DT;
-        if (this.ST > 0) --this.ST;
-      }
-      else {
-        console.log('Undefined opcode [%s]', opcode.toString(16));
+        this.PC = (this.PC + 2) & 0xFFF;
       }
 
-      this.PC = (this.PC + 2) & 0xFFF;
+      // Update the timers at 60 Hz
+
+      _dt_acc += dt;
+
+      if (_dt_acc > 0.017) {
+
+        if (this.DT > 0)
+          --this.DT;
+
+        if (this.ST > 0) {
+          --this.ST;
+          if (this.ST == 0)
+            Cheapo.Audio.toggle(false);
+        }
+
+        _dt_acc -= 0.017;
+      }
     },
 
     wait: function(on) {
       _waiting = on === undefined ? true : on;
     }
+
   };
 
 })();

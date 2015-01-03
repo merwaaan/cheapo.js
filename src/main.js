@@ -47,11 +47,12 @@ Cheapo.Main = (function() {
     frame: function(time) {
 
       var now = window.performance.now();
-      var ticks = (now - _last_frame) / 1000 * Cheapo.CPU.frequency + _tick_rest;
+      var diff = now - _last_frame;
+      var ticks = diff / 1000 * Cheapo.CPU.frequency + _tick_rest;
       _tick_rest = ticks % 1;
 
       for (var i = 0, t = Math.floor(ticks); i < t; ++i)
-        Cheapo.CPU.step();
+        Cheapo.CPU.step(diff);
 
       _last_frame = now;
     }
