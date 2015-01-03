@@ -55,11 +55,11 @@ Cheapo.CPU = (function() {
     JP_V0_addr: function(addr) { this.PC = addr + this.V[0] - 2 },
 
     CALL_addr: function(addr) {
-      this.stack[++this.SP] = this.PC;
+      this.stack[this.SP++] = this.PC;
       this.PC = addr - 2;
     },
 
-    RET: function() { this.PC = this.stack[this.SP--] },
+    RET: function() { this.PC = this.stack[--this.SP] },
 
     SE_Vx_byte: function(x, byte) { if (this.V[x] == byte) this.PC += 2 },
     SE_Vx_Vy: function(x, y) { if (this.V[x] == this.V[y]) this.PC += 2 },
@@ -146,7 +146,9 @@ Cheapo.CPU = (function() {
   };
 
   /**
-    *
+    * The jumptable contains all possible opcodes and precomputed
+    * parameters extracted from the opcode. Filling the jumptable
+    * is done by binding instructions to patterns with register().
     */
 
   var _jumptable = {};
@@ -226,10 +228,6 @@ Cheapo.CPU = (function() {
 
     DT: 0,
     ST: 0,
-
-    /**
-      *
-      */
 
     init: function() {
 
@@ -313,7 +311,7 @@ Cheapo.CPU = (function() {
 
         var opcode_data = _jumptable[opcode];
         if (opcode_data) {
-          console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
+          //console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
           opcode_data.instruction.apply(this, opcode_data.parameters);
         }
         else {
