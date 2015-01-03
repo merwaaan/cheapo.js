@@ -74,13 +74,13 @@ Cheapo.CPU = (function() {
     AND_Vx_Vy: function(x, y) { this.V[x] &= this.V[y] },
     XOR_Vx_Vy: function(x, y) { this.V[x] ^= this.V[y] },
 
-    ADD_Vx_byte: function(x, byte) { this.V[x] = this.V[x] + byte },
+    ADD_Vx_byte: function(x, byte) { this.V[x] += byte },
     ADD_Vx_Vy: function(x, y) {
       var sum = this.V[x] + this.V[y];
       this.V[0xF] = +(sum > 0xFF);
       this.V[x] = sum;
     },
-    ADD_I_Vx: function(x) { this.I = (this.I + this.V[x]) & 0xFFFF },
+    ADD_I_Vx: function(x) { this.I = (this.I + this.V[x]) & 0xFFF },
 
     SUB_Vx_Vy: function(x, y) {
       this.V[0xF] = +(this.V[x] > this.V[y]);
@@ -120,13 +120,10 @@ Cheapo.CPU = (function() {
     LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // inc I???
     LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ }, // ...
 
-    LD_B_Vx: function(x) { // TODO simplify?
-      var value = this.V[x], n = 100;
-      for (var i = 0; i < 3; ++i) {
-        this.memory[this.I + i] = Math.floor(value / n);
-        value %= n;
-        n /= 10;
-      }
+    LD_B_Vx: function(x) {
+      this.memory[this.I] = Math.floor(this.V[x] / 100);
+      this.memory[this.I + 1] = Math.floor(this.V[x] % 100 / 10);
+      this.memory[this.I + 2] = Math.floor(this.V[x] % 10);
     },
 
     LD_Vx_K: function(x) {
@@ -311,7 +308,7 @@ Cheapo.CPU = (function() {
 
         var opcode_data = _jumptable[opcode];
         if (opcode_data) {
-          //console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
+          console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
           opcode_data.instruction.apply(this, opcode_data.parameters);
         }
         else {
