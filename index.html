@@ -58,7 +58,12 @@
         request.responseType = 'arraybuffer';
 
         request.onload = function() {
+
           Cheapo.Main.load(request.response);
+
+          // BLITZ cannot be won with wrap mode on
+          if (name == 'BLITZ')
+            Cheapo.Video.wrap = false;
         };
 
         request.send();
