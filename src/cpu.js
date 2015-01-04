@@ -308,7 +308,7 @@ Cheapo.CPU = (function() {
 
         var opcode_data = _jumptable[opcode];
         if (opcode_data) {
-          console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
+          //console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
           opcode_data.instruction.apply(this, opcode_data.parameters);
         }
         else {

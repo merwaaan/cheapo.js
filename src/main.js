@@ -34,7 +34,7 @@ Cheapo.Main = (function() {
     },
 
     run: function() {
-return;
+
       _last_frame = window.performance.now();
       _interval = setInterval(this.frame, 30);
     },

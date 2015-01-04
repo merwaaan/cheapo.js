@@ -13,26 +13,24 @@ Cheapo.Video = (function() {
     */
 
   var _color = [0x2F, 0xA1, 0xD6];
-  var _background = [255, 255, 255];
+  var _background = [0xFF, 0xFF, 0xFF];
 
   function css_color(color) {
-    return '#' + color.map(function(i){ return parseInt(i).toString(16) }).join('');
+    return '#' + color.map(function(i){ return ('0' + parseInt(i).toString(16)).substr(-2) }).join('');
   }
 
   function set_color(color) {
 
-    for (var i = 0; i < 3; ++i)
-      _color[i] = color[i];
-
+    _color = color;
     _ctx.fillStyle = css_color(color);
+
+    redraw();
   }
 
   function set_background(color) {
 
-    for (var i = 0; i < 3; ++i)
-      _background[i] = color[i];
-
-    document.querySelector('canvas').style.backgroundColor = css_color(color);
+    _background = color;
+    _ctx.canvas.style.backgroundColor = css_color(color);
   }
 
   /**
@@ -55,12 +53,9 @@ Cheapo.Video = (function() {
 
     _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
-    // XXX weird bug when changing the scale before playing a game
-    // XXX also bugs when scaling (not clearing properly)
-
     for (var i = 0; i < _map.length; ++i)
       if (_map[i])
-        _ctx.fillRect((i % 64) * _scale, parseInt(i / 64) * _scale, _scale, _scale);
+        _ctx.fillRect((i % 64) * _scale, Math.floor(i / 64) * _scale, _scale, _scale);
   }
 
   return {
@@ -70,23 +65,24 @@ Cheapo.Video = (function() {
 
     get scale() { return _scale }, set scale(x) { set_scale(x) },
 
-    wrap: false,
+    wrap: true,
 
     init: function() {
 
       var canvas = document.querySelector('canvas');
       _ctx = canvas.getContext('2d');
       set_color(_color);
+
+      // Init the collision map
+
+      _map = [];
+      for (var i = 0, l = 64 * 32; i < l; ++i)
+        _map.push(false);
     },
 
     reset: function() {
 
       this.clear();
-
-      // Reset the collision _map
-      _map = [];
-      for (var i = 0, l = 64 * 32; i < l; ++i)
-        _map.push(false);
     },
 
     sprite: function(address, x, y, n) {
@@ -139,6 +135,9 @@ Cheapo.Video = (function() {
     clear: function() {
 
       _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+
+      for (var i = 0; i < _map.length; ++i)
+        _map[i] = false;
     }
 
   };
