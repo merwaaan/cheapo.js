@@ -46,7 +46,8 @@ Cheapo.Video = (function() {
     _ctx.canvas.width = 64 * _scale;
     _ctx.canvas.height = 32 * _scale;
 
-    redraw();
+    // Set the color again (was reset) and redraw
+    set_color(_color);
   }
 
   function redraw() {
