@@ -1,6 +1,6 @@
 # Cheapo.js
 
-Cheapo is a CHIP-8 emulator written in JavaScript.
+Cheapo is a CHIP-8 emulator written in JavaScript. Try it [here](http://merwanachibet.net/cheapo.js/).
 
 ![Maze](https://raw.githubusercontent.com/merwaaan/cheapo.js/master/maze.png)
 
