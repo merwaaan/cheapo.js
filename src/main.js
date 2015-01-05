@@ -4,9 +4,10 @@ Cheapo.Main = (function() {
 
   'use strict';
 
+  var _interval_delay = 30;
   var _interval = null;
   var _last_frame = null;
-  var _tick_rest = 0;
+  var _ticks_rest = 0;
 
   return {
 
@@ -36,7 +37,7 @@ Cheapo.Main = (function() {
     run: function() {
 
       _last_frame = window.performance.now();
-      _interval = setInterval(this.frame, 30);
+      _interval = setInterval(this.frame, _interval_delay);
     },
 
     pause: function() {
@@ -48,11 +49,14 @@ Cheapo.Main = (function() {
 
       var now = window.performance.now();
       var diff = now - _last_frame;
-      var ticks = diff / 1000 * Cheapo.CPU.frequency + _tick_rest;
-      _tick_rest = ticks % 1;
 
-      for (var i = 0, t = Math.floor(ticks); i < t; ++i)
-        Cheapo.CPU.step(diff);
+      var ticks = diff / 1000 * Cheapo.CPU.frequency + _ticks_rest;
+      _ticks_rest = ticks % 1;
+      ticks = Math.floor(ticks);
+
+      var tick_duration = diff / ticks;
+      for (var i = 0, t = ticks; i < t; ++i)
+        Cheapo.CPU.step(tick_duration);
 
       _last_frame = now;
     }

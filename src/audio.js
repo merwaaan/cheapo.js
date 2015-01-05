@@ -8,6 +8,8 @@ Cheapo.Audio = (function() {
   var _oscillator = null;
   var _gain = null;
 
+  var _playing = false;
+
   function create_oscillator() {
 
     var frequency = _oscillator ? _oscillator.frequency.value : 300;
@@ -29,6 +31,7 @@ Cheapo.Audio = (function() {
 
     get volume() { return _gain.gain.value * 100 }, set volume(x) { _gain.gain.value = x / 100; },
     get frequency() { return _oscillator.frequency.value }, set frequency(x) { _oscillator.frequency.value = x; },
+    get playing() { return _playing },
 
     init: function() {
 
@@ -48,14 +51,14 @@ Cheapo.Audio = (function() {
 
     toggle: function(on) {
 
-      // XXX
-      // Try/catch because of the error when stop an unstarted node
-      // Is there a way to check if it started???
-
-      try {
-        on ? _oscillator.start() : _oscillator.stop();
+      if (on && !_playing) {
+        _oscillator.start();
+        _playing = true;
       }
-      catch (e) {}
+      else if (_playing) {
+        _oscillator.stop();
+        _playing = false;
+      }
     }
 
   };

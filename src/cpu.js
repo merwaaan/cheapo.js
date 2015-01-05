@@ -318,11 +318,16 @@ Cheapo.CPU = (function() {
         this.PC = (this.PC + 2) & 0xFFF;
       }
 
-      // Update the timers at 60 Hz
+      // Update the timers
+
+      this.timers(dt);
+    },
+
+    timers: function(dt) {
 
       _dt_acc += dt;
 
-      if (_dt_acc > 0.017) {
+      if (_dt_acc > 17) { // 60 Hz -> ~17 ms
 
         if (this.DT > 0)
           --this.DT;
@@ -333,7 +338,7 @@ Cheapo.CPU = (function() {
             Cheapo.Audio.toggle(false);
         }
 
-        _dt_acc -= 0.017;
+        _dt_acc -= 17;
       }
     },
 
