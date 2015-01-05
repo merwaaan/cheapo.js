@@ -187,12 +187,7 @@ Cheapo.CPU = (function() {
         for (var j = 0; j < wildcards.length; ++j) {
 
           var parameter = parseInt(opcode.slice(cursor, cursor + wildcards[j].length), 16);
-
-          parameters.push(
-            function(parameter) {
-              return parameter;
-            }(parameter)
-          );
+          parameters.push(parameter);
 
           cursor += wildcards[j].length;
         }

@@ -33,12 +33,28 @@ Cheapo.Input = (function() {
     78: 0xF
   };
 
+  /**
+    * HTML table containing a visual keyboard.
+    */
+
+  var _keyboard = null;
+
+  var toggle_visual_keyboard = function(on) {
+
+    if (_keyboard)
+      _keyboard.style.display = on ? 'table' : 'none';
+  }
+
   return {
 
     // Callback function called on key press
     callback: null,
 
+    get visual_keyboard() { return _keyboard.style.display != 'none' }, set visual_keyboard(x) { toggle_visual_keyboard(x) },
+
     init: function() {
+
+      // Setup event listeners on key down and key up
 
       document.addEventListener('keydown', function(event) {
         if (event.keyCode in _mapping) {
@@ -56,6 +72,33 @@ Cheapo.Input = (function() {
           _keys[_mapping[event.keyCode]] = false;
         }
       });
+
+      // Setup the visual keyboard
+
+      _keyboard = document.querySelector('table#keyboard');
+
+      var cells = _keyboard.querySelectorAll('td');
+      for (var i = 0; i < cells.length; ++i) {
+
+        var key = parseInt(cells[i].innerHTML, 16);
+
+        cells[i].addEventListener('mousedown', function(key) {
+          return function() {
+
+            _keys[key] = true;
+
+            if (this.callback)
+              this.callback(key);
+          }.bind(this)
+        }.call(this, key));
+
+        cells[i].addEventListener('mouseup', function(key) {
+          return function() {
+
+            _keys[key] = false;
+          }
+        }(key));
+      }
     },
 
     reset: function() {

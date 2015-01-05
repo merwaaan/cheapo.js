@@ -37,6 +37,22 @@ canvas {
 	border: 1px solid lightgrey;
 }
 
+table#keyboard {
+	margin: 1em;
+}
+
+table#keyboard td {
+	padding: 0.6em;
+	color: grey;
+	border: 1px solid lightgrey;
+}
+
+table#keyboard td:hover {
+	color: black;
+	background-color: lightgrey;
+	cursor: pointer;
+}
+
 footer {
 	margin: 2.5em;
 	font-size: 0.9em;

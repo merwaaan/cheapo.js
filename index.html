@@ -22,6 +22,13 @@
 
   <canvas width="384" height="192"></canvas>
 
+  <table id="keyboard" style="display:none">
+    <tr><td>1</td><td>2</td><td>3</td><td>C</td></tr>
+    <tr><td>4</td><td>5</td><td>6</td><td>D</td></tr>
+    <tr><td>7</td><td>8</td><td>9</td><td>E</td></tr>
+    <tr><td>A</td><td>0</td><td>B</td><td>F</td></tr>
+  </table>
+
   <input type="file" id="local_rom" style="visibility:hidden"/>
 
   <footer>
@@ -104,6 +111,9 @@
       var audio = gui.addFolder('Audio');
       audio.add(Cheapo.Audio, 'volume').min(0).max(100).step(1);
       audio.add(Cheapo.Audio, 'frequency').min(0).max(1000).step(1);
+
+      var input = gui.addFolder('Input');
+      input.add(Cheapo.Input, 'visual_keyboard').name('Visual keyboard');
     });
 
   </script>
