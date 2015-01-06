@@ -158,7 +158,7 @@ Cheapo.CPU = (function() {
     // Display
 
     CLS: function() { Cheapo.Video.clear() },
-    DRW_Vx_Vy_nibble: function(x, y, n) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], n) },
+    DRW_Vx_Vy_n: function(x, y, n) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], n) },
     SCD_n: function(n) { Cheapo.Video.scroll(0, -n) },
     SCR: function() { Cheapo.Video.scroll(0, 4) },
     SCL: function() { Cheapo.Video.scroll(0, -4) },
@@ -272,7 +272,7 @@ Cheapo.CPU = (function() {
       register('Annn', _instructions.LD_I_addr);
       register('Bnnn', _instructions.JP_V0_addr);
       register('Cxkk', _instructions.RND_Vx_byte);
-      register('Dxyn', _instructions.DRW_Vx_Vy_nibble);
+      register('Dxyn', _instructions.DRW_Vx_Vy_n);
       register('Ex9E', _instructions.SKP_Vx);
       register('ExA1', _instructions.SKNP_Vx);
       register('Fx07', _instructions.LD_Vx_DT);

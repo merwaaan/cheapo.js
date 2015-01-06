@@ -45,8 +45,8 @@ Cheapo.Video = (function() {
 
     _scale = scale;
 
-    _ctx.canvas.width = _resolution.x * _scale;
-    _ctx.canvas.height = _resolution.y * _scale;
+    _ctx.canvas.width = 128 * _scale;
+    _ctx.canvas.height = 64 * _scale;
 
     // Set the color again (was reset) and redraw
     set_color(_color);
@@ -56,9 +56,11 @@ Cheapo.Video = (function() {
 
     _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
+    var multiplier = _resolution.x == 128 ? 1 : 2;
+
     for (var i = 0; i < _map.length; ++i)
       if (_map[i])
-        _ctx.fillRect((i % _resolution.x) * _scale, Math.floor(i / _resolution.x) * _scale, _scale, _scale);
+        _ctx.fillRect((i % _resolution.x) * _scale * multiplier, Math.floor(i / _resolution.x) * _scale * multiplier, _scale * multiplier, _scale * multiplier);
   }
 
   return {
