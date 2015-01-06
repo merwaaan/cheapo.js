@@ -159,9 +159,9 @@ Cheapo.CPU = (function() {
 
     CLS: function() { Cheapo.Video.clear() },
     DRW_Vx_Vy_n: function(x, y, n) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], n) },
-    SCD_n: function(n) { Cheapo.Video.scroll(0, -n) },
-    SCR: function() { Cheapo.Video.scroll(0, 4) },
-    SCL: function() { Cheapo.Video.scroll(0, -4) },
+    SCD_n: function(n) { Cheapo.Video.scroll(0, n) },
+    SCR: function() { Cheapo.Video.scroll(4, 0) },
+    SCL: function() { Cheapo.Video.scroll(-4, 0) },
     LOW: function() { Cheapo.Video.extend(false) },
     HIGH: function() { Cheapo.Video.extend(true) }
   };

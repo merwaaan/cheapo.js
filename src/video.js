@@ -38,8 +38,7 @@ Cheapo.Video = (function() {
     */
 
   var _resolution = {x: 64, y:32};
-  var _scrolling = {x: 0, y: 0};
-  var _scale = 1;
+  var _scale = 4;
 
   function set_scale(scale) {
 
@@ -90,7 +89,6 @@ Cheapo.Video = (function() {
 
       _resolution.x = 64;
       _resolution.y = 32;
-      _scrolling.x = _scrolling.y = 0;
 
       this.clear();
     },
@@ -98,6 +96,8 @@ Cheapo.Video = (function() {
     sprite: function(address, x, y, n) {
 
       var collision = false;
+
+      // TODO 16x16 extended sprite
 
       // A height of 0 draws the whole 16px sprite
 
@@ -158,8 +158,31 @@ Cheapo.Video = (function() {
 
     scroll: function(x, y) {
 
-      _scrolling.x += x;
-      _scrolling.y += y;
+      // Vertical scroll
+
+      if (y != 0)
+        for (var i = _resolution.y - 1; i > y - 1; --i)
+          for (var j = 0; j < _resolution.x; ++j)
+            _map[i * _resolution.x + j] = _map[(i - y) * _resolution.x + j];
+
+      // Horizontal scroll
+
+      if (x != 0) {
+
+        var x_start = x > 0 ? _resolution.x - 1 : 0;
+        var x_end = x > 0 ? x : _resolution.x + x - 1;
+        var x_diff = x > 0 ? -1 : 1;
+
+console.log(x_start, x_end, x_diff); // todo scroll(1,0) does not work yet
+
+        for (var i = 0; i < _resolution.y; ++i)
+          for (var j = x_start; j < x_end; j += x_diff) {
+            _map[i * _resolution.x + j] = _map[i * _resolution.x + j - x];
+            console.log(i, j);
+          }
+      }
+
+      redraw();
     },
 
     extend: function(on) {
