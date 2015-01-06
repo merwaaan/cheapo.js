@@ -22,7 +22,7 @@ Cheapo.CPU = (function() {
     */
 
   var _font = [
-    0xF0, 0x90, 0x90, 0x90, 0xF0,
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // Low def
     0x20, 0x60, 0x20, 0x20, 0x70,
     0xF0, 0x10, 0xF0, 0x80, 0xF0,
     0xF0, 0x10, 0xF0, 0x10, 0xF0,
@@ -37,7 +37,23 @@ Cheapo.CPU = (function() {
     0xF0, 0x80, 0x80, 0x80, 0xF0,
     0xE0, 0x90, 0x90, 0x90, 0xE0,
     0xF0, 0x80, 0xF0, 0x80, 0xF0,
-    0xF0, 0x80, 0xF0, 0x80, 0x80
+    0xF0, 0x80, 0xF0, 0x80, 0x80,
+    0xFF, 0xFF, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xFF, 0xFF, // High def
+    0x18, 0x78, 0x78, 0x18, 0x18, 0x18, 0x18, 0x18, 0xFF, 0xFF,
+    0xFF, 0xFF, 0x03, 0x03, 0xFF, 0xFF, 0xC0, 0xC0, 0xFF, 0xFF,
+    0xFF, 0xFF, 0x03, 0x03, 0xFF, 0xFF, 0x03, 0x03, 0xFF, 0xFF,
+    0xC3, 0xC3, 0xC3, 0xC3, 0xFF, 0xFF, 0x03, 0x03, 0x03, 0x03,
+    0xFF, 0xFF, 0xC0, 0xC0, 0xFF, 0xFF, 0x03, 0x03, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xC0, 0xC0, 0xFF, 0xFF, 0xC3, 0xC3, 0xFF, 0xFF,
+    0xFF, 0xFF, 0x03, 0x03, 0x06, 0x0C, 0x18, 0x18, 0x18, 0x18,
+    0xFF, 0xFF, 0xC3, 0xC3, 0xFF, 0xFF, 0xC3, 0xC3, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xC3, 0xC3, 0xFF, 0xFF, 0x03, 0x03, 0xFF, 0xFF,
+    0x7E, 0xFF, 0xC3, 0xC3, 0xC3, 0xFF, 0xFF, 0xC3, 0xC3, 0xC3,
+    0xFC, 0xFC, 0xC3, 0xC3, 0xFC, 0xFC, 0xC3, 0xC3, 0xFC, 0xFC,
+    0x3C, 0xFF, 0xC3, 0xC0, 0xC0, 0xC0, 0xC0, 0xC3, 0xFF, 0x3C,
+    0xFC, 0xFE, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xFE, 0xFC,
+    0xFF, 0xFF, 0xC0, 0xC0, 0xFF, 0xFF, 0xC0, 0xC0, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xC0, 0xC0, 0xFF, 0xFF, 0xC0, 0xC0, 0xC0, 0xC0
   ];
 
   /**
@@ -45,6 +61,7 @@ Cheapo.CPU = (function() {
     *
     * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
     * http://mattmik.com/chip8.html
+    * http://devernay.free.fr/hacks/chip8/schip.txt
     */
 
   var _instructions = {
@@ -53,13 +70,13 @@ Cheapo.CPU = (function() {
 
     JP_addr: function(addr) { this.PC = addr - 2 },
     JP_V0_addr: function(addr) { this.PC = addr + this.V[0] - 2 },
+    RET: function() { this.PC = this.stack[--this.SP] },
+    EXIT: function() { Cheapo.Main.stop() },
 
     CALL_addr: function(addr) {
       this.stack[this.SP++] = this.PC;
       this.PC = addr - 2;
     },
-
-    RET: function() { this.PC = this.stack[--this.SP] },
 
     SE_Vx_byte: function(x, byte) { if (this.V[x] == byte) this.PC += 2 },
     SE_Vx_Vy: function(x, y) { if (this.V[x] == this.V[y]) this.PC += 2 },
@@ -116,9 +133,12 @@ Cheapo.CPU = (function() {
     LD_Vx_DT: function(x) { this.V[x] = this.DT },
     LD_DT_Vx: function(x) { this.DT = this.V[x] },
     LD_ST_Vx: function(x) { if ((this.ST = this.V[x]) > 1) Cheapo.Audio.toggle(true) },
-    LD_F_Vx: function(x) { this.I = this.V[x] * 5 },
+    LD_LF_Vx: function(x) { this.I = this.V[x] * 5 },
+    LD_HF_Vx: function(x) { this.I = 80 + this.V[x] * 10 },
     LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // inc I???
     LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ }, // ...
+    LD_R_Vx: function(x) { for (var i = 0; i <= x; ++i) this.R[i] = this.V[i]; },
+    LD_Vx_R: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.R[i]; },
 
     LD_B_Vx: function(x) {
       this.memory[this.I] = Math.floor(this.V[x] / 100);
@@ -138,8 +158,12 @@ Cheapo.CPU = (function() {
     // Display
 
     CLS: function() { Cheapo.Video.clear() },
-    DRW_Vx_Vy_nibble: function(x, y, nibble) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], nibble) }
-
+    DRW_Vx_Vy_nibble: function(x, y, n) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], n) },
+    SCD_n: function(n) { Cheapo.Video.scroll(0, -n) },
+    SCR: function() { Cheapo.Video.scroll(0, 4) },
+    SCL: function() { Cheapo.Video.scroll(0, -4) },
+    LOW: function() { Cheapo.Video.extend(false) },
+    HIGH: function() { Cheapo.Video.extend(true) }
   };
 
   /**
@@ -204,13 +228,14 @@ Cheapo.CPU = (function() {
 
     memory: new Uint8Array(0x1000),
 
-    frequency: 50,
+    frequency: 500,
 
     /**
       * Registers
       */
 
     V: new Uint8Array(16),
+    R: new Uint8Array(8),
     I: 0,
 
     stack: new Uint16Array(16),
@@ -222,6 +247,8 @@ Cheapo.CPU = (function() {
     ST: 0,
 
     init: function() {
+
+      // CHIP-8 instructions
 
       register('00E0', _instructions.CLS);
       register('00EE', _instructions.RET);
@@ -253,10 +280,22 @@ Cheapo.CPU = (function() {
       register('Fx15', _instructions.LD_DT_Vx);
       register('Fx18', _instructions.LD_ST_Vx);
       register('Fx1E', _instructions.ADD_I_Vx);
-      register('Fx29', _instructions.LD_F_Vx);
+      register('Fx29', _instructions.LD_LF_Vx);
       register('Fx33', _instructions.LD_B_Vx);
       register('Fx55', _instructions.LD_I_Vx);
       register('Fx65', _instructions.LD_Vx_I);
+
+      // SCHIP instructions
+
+      register('00Cn', _instructions.SCD_n);
+      register('00FB', _instructions.SCR);
+      register('00FC', _instructions.SCL);
+      register('00FD', _instructions.EXIT);
+      register('00FE', _instructions.LOW);
+      register('00FF', _instructions.HIGH);
+      register('Fx30', _instructions.LD_HF_Vx);
+      register('Fx75', _instructions.LD_R_Vx);
+      register('Fx85', _instructions.LD_Vx_R);
     },
 
     reset: function() {
@@ -273,6 +312,9 @@ Cheapo.CPU = (function() {
 
       for (var i = 0; i < 16; ++i)
         this.V[i] = this.stack[i] = 0;
+
+      for (var i = 0; i < 8; ++i)
+        this.R[i] = 0;
 
       // Reset the memory
       this.memory = new Uint8Array(0x1000);

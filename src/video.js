@@ -34,17 +34,19 @@ Cheapo.Video = (function() {
   }
 
   /**
-    * Canvas size
+    * Screen size & position
     */
 
-  var _scale = 6;
+  var _resolution = {x: 64, y:32};
+  var _scrolling = {x: 0, y: 0};
+  var _scale = 1;
 
   function set_scale(scale) {
 
     _scale = scale;
 
-    _ctx.canvas.width = 64 * _scale;
-    _ctx.canvas.height = 32 * _scale;
+    _ctx.canvas.width = _resolution.x * _scale;
+    _ctx.canvas.height = _resolution.y * _scale;
 
     // Set the color again (was reset) and redraw
     set_color(_color);
@@ -56,7 +58,7 @@ Cheapo.Video = (function() {
 
     for (var i = 0; i < _map.length; ++i)
       if (_map[i])
-        _ctx.fillRect((i % 64) * _scale, Math.floor(i / 64) * _scale, _scale, _scale);
+        _ctx.fillRect((i % _resolution.x) * _scale, Math.floor(i / _resolution.x) * _scale, _scale, _scale);
   }
 
   return {
@@ -64,6 +66,7 @@ Cheapo.Video = (function() {
     get color() { return _color }, set color(x) { set_color(x) },
     get background() { return _background }, set background(x) { set_background(x) },
 
+    get extended() { return _resolution.x == 128 },
     get scale() { return _scale }, set scale(x) { set_scale(x) },
 
     wrap: true,
@@ -74,14 +77,18 @@ Cheapo.Video = (function() {
       _ctx = canvas.getContext('2d');
       set_color(_color);
 
-      // Init the collision map
+      // Initialize the collision map
 
       _map = [];
-      for (var i = 0, l = 64 * 32; i < l; ++i)
+      for (var i = 0, l = _resolution.x * _resolution.y; i < l; ++i)
         _map.push(false);
     },
 
     reset: function() {
+
+      _resolution.x = 64;
+      _resolution.y = 32;
+      _scrolling.x = _scrolling.y = 0;
 
       this.clear();
     },
@@ -111,24 +118,30 @@ Cheapo.Video = (function() {
 
     pixel: function(x, y) {
 
-      // Wrap the coordinates around the canvas
+      // Out-of-bounds pixels are not drawn (no wrapping)
 
-      if (this.wrap) {
-        x %= 64;
-        y %= 32;
-      }
+      if (x < 0 || x >= _resolution.x || y < 0 || y >= _resolution.y)
+        return;
+
+      // Compute the pixel coordinates.
+      // The canvas always has the resolution of extended mode but in
+      // non-extended mode, a pixel is drawn as a 2x2 square.
+
+      var index = y * _resolution.x + x;
+
+      var x_canvas = x * _scale * (this.extended ? 1 : 2);
+      var y_canvas = y * _scale * (this.extended ? 1 : 2);
+      var s_canvas = _scale * (this.extended ? 1 : 2);
 
       // XOR mode: erase and return a collision if a pixel is already here
 
-      var index = y * 64 + x;
-
       if (_map[index]) {
-        _ctx.clearRect(x * _scale, y * _scale, _scale, _scale);
+        _ctx.clearRect(x_canvas, y_canvas, s_canvas, s_canvas);
         _map[index] = false;
         return true;
       }
 
-      _ctx.fillRect(x * _scale, y * _scale, _scale, _scale);
+      _ctx.fillRect(x_canvas, y_canvas, s_canvas, s_canvas);
       _map[index] = true;
       return false;
     },
@@ -139,6 +152,25 @@ Cheapo.Video = (function() {
 
       for (var i = 0; i < _map.length; ++i)
         _map[i] = false;
+    },
+
+    scroll: function(x, y) {
+
+      _scrolling.x += x;
+      _scrolling.y += y;
+    },
+
+    extend: function(on) {
+
+      _resolution = on ?
+        {x: 128, y:64} :
+        {x: 64, y:32};
+
+      // Resize the map
+
+      _map = [];
+      for (var i = 0, l = _resolution.x * _resolution.y; i < l; ++i)
+        _map.push(false);
     }
 
   };

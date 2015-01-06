@@ -40,7 +40,7 @@ Cheapo.Main = (function() {
       _interval = setInterval(this.frame, _interval_delay);
     },
 
-    pause: function() {
+    stop: function() {
 
       clearInterval(_interval);
     },
