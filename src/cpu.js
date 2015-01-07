@@ -97,30 +97,28 @@ Cheapo.CPU = (function() {
       this.V[0xF] = +(sum > 0xFF);
       this.V[x] = sum;
     },
-    ADD_I_Vx: function(x) { this.I = (this.I + this.V[x]) & 0xFFF },
+    ADD_I_Vx: function(x) {
+      this.I += this.V[x];
+      this.V[0xF] = +(this.I > 0xFFF);
+      this.I &= 0xFFF;
+    },
 
     SUB_Vx_Vy: function(x, y) {
-      this.V[0xF] = +(this.V[x] > this.V[y]);
+      this.V[0xF] = +(this.V[x] >= this.V[y]);
       this.V[x] -= this.V[y];
     },
     SUBN_Vx_Vy: function(x, y) {
-      this.V[0xF] = +(this.V[y] > this.V[x]);
+      this.V[0xF] = +(this.V[y] >= this.V[x]);
       this.V[x] = this.V[y] - this.V[x];
     },
 
-    SHL_Vx_Vy: function(x, y) { // VY???
+    SHL_Vx_Vy: function(x, y) { // What is Vy for???
       this.V[0xF] = (this.V[x] & 0x80) >> 7;
       this.V[x] <<= 1;
-      /*this.V[0xF] = (this.V[y] & 0x80) >> 7;
-      this.V[x] = this.V[y] << 1;
-      this.V[y] = this.V[y] << 1;*/
     },
-    SHR_Vx_Vy: function(x, y) { // VY???
+    SHR_Vx_Vy: function(x, y) { // What is Vy for???
       this.V[0xF] = this.V[x] & 1;
       this.V[x] >>= 1;
-      /*this.V[0xF] = this.V[y] & 1;
-      this.V[x] = this.V[y] >> 1;
-      this.V[y] = this.V[y] >> 1;*/
     },
 
     RND_Vx_byte: function(x, byte) { this.V[x] = Math.floor(Math.random() * 0xFF) & byte },
@@ -135,8 +133,8 @@ Cheapo.CPU = (function() {
     LD_ST_Vx: function(x) { if ((this.ST = this.V[x]) > 1) Cheapo.Audio.toggle(true) },
     LD_LF_Vx: function(x) { this.I = this.V[x] * 5 },
     LD_HF_Vx: function(x) { this.I = 80 + this.V[x] * 10 },
-    LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // inc I???
-    LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ }, // ...
+    LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // Should I be incremented?
+    LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ },
     LD_R_Vx: function(x) { for (var i = 0; i <= x; ++i) this.R[i] = this.V[i]; },
     LD_Vx_R: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.R[i]; },
 
