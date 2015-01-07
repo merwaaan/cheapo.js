@@ -70,8 +70,6 @@ Cheapo.Video = (function() {
     get extended() { return _resolution.x == 128 },
     get scale() { return _scale }, set scale(x) { set_scale(x) },
 
-    wrap: true,
-
     init: function() {
 
       var canvas = document.querySelector('canvas');
@@ -97,21 +95,27 @@ Cheapo.Video = (function() {
 
       var collision = false;
 
-      // TODO 16x16 extended sprite
+      var h = n == 0 ? 16 : n; // "0 lines" actually means "draw all lines"
+      var w = n == 0 && this.extended ? 16 : 8;  // "0 lines" in extended mode also means "draw the 16px wide sprite"
 
-      // A height of 0 draws the whole 16px sprite
+      // Loop through the lines
 
-      if (n == 0)
-        n = 16;
+      for (var i = 0; i < h; ++i) {
 
-      // Loop through the pixels
+        var line;
+        if (w == 8) {
+          line = Cheapo.CPU.memory[address + i];
+        }
+        else {
+          line = Cheapo.CPU.memory[address + i * 2];
+          line = line << 8 | Cheapo.CPU.memory[address + i * 2 + 1];
+          w = 16;
+        }
 
-      for (var i = 0; i < n; ++i) {
+        // Loop through the pixels
 
-        var line = Cheapo.CPU.memory[address + i];
-
-        for (var j = 0; j < 8; ++j)
-          if (!!(line & 1 << (7 - j)) && this.pixel(x + j, y + i))
+        for (var j = 0; j < w; ++j)
+          if (!!(line & 1 << (w - 1 - j)) && this.pixel(x + j, y + i))
               collision = true;
       }
 
@@ -123,11 +127,11 @@ Cheapo.Video = (function() {
       // Out-of-bounds pixels are not drawn (no wrapping)
 
       if (x < 0 || x >= _resolution.x || y < 0 || y >= _resolution.y)
-        return;
+        return false;
 
       // Compute the pixel coordinates.
       // The canvas always has the resolution of extended mode but in
-      // non-extended mode, a pixel is drawn as a 2x2 square.
+      // non-extended mode, a pixel is drawn as a 2*2 square.
 
       var index = y * _resolution.x + x;
 
@@ -158,29 +162,24 @@ Cheapo.Video = (function() {
 
     scroll: function(x, y) {
 
-      // Vertical scroll
+      // Vertical scrolling
 
-      if (y != 0)
-        for (var i = _resolution.y - 1; i > y - 1; --i)
+      if (y > 0)
+        for (var i = _resolution.y - 1; i >= 0; --i)
           for (var j = 0; j < _resolution.x; ++j)
-            _map[i * _resolution.x + j] = _map[(i - y) * _resolution.x + j];
+            _map[i * _resolution.x + j] = i > y - 1 ? _map[(i - y) * _resolution.x + j] : false;
 
-      // Horizontal scroll
+      // Horizontal scrolling
 
-      if (x != 0) {
-
-        var x_start = x > 0 ? _resolution.x - 1 : 0;
-        var x_end = x > 0 ? x : _resolution.x + x - 1;
-        var x_diff = x > 0 ? -1 : 1;
-
-console.log(x_start, x_end, x_diff); // todo scroll(1,0) does not work yet
-
+      if (x > 0)
         for (var i = 0; i < _resolution.y; ++i)
-          for (var j = x_start; j < x_end; j += x_diff) {
-            _map[i * _resolution.x + j] = _map[i * _resolution.x + j - x];
-            console.log(i, j);
-          }
-      }
+          for (var j = _resolution.x - 1; j >= 0; --j)
+            _map[i * _resolution.x + j] = j > x - 1 ? _map[i * _resolution.x + j - x] : false;
+
+      else if (x < 0)
+        for (var i = 0; i < _resolution.y; ++i)
+          for (var j = 0; j < _resolution.x; ++j)
+            _map[i * _resolution.x + j] = j > _resolution.x - x ? _map[i * _resolution.x + j + x] : false;
 
       redraw();
     },
