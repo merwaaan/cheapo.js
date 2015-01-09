@@ -55,7 +55,23 @@
 
       // Select one of the hosted ROMS...
 
-      var hosted = game.add({load:''}, 'load', ['15PUZZLE', 'BLINKY', 'BLITZ', 'BRIX', 'CONNECT4', 'GUESS', 'HIDDEN', 'INVADERS', 'KALEID', 'MAZE', 'MERLIN', 'MISSILE', 'PONG', 'PONG2', 'PUZZLE', 'SYZYGY', 'TANK', 'TETRIS', 'TICTAC', 'UFO', 'VBRIX', 'VERS', 'WIPEOFF']).name('Select');
+      var games = [
+        ['Animal Race', 'Astro Dodge', 'Blinky', 'Blitz', 'Brix', 'Hidden', 'Maze', 'Missile', 'Space Invaders', 'Tetris', 'Tic Tac', 'UFO'], // CHIP-8
+        ['Alien', 'Super Blinky', 'Car Race', 'Field!', 'Joust', 'Sokoban', 'Super Astro Dodge', 'U-Boat'] // Super CHIP-8
+      ];
+      var hosted = game.add({load:''}, 'load', games[0].concat(games[1])).name('Select');
+
+      function category(label, n) {
+        var select = document.querySelector('select');
+        var group = document.createElement('optgroup');
+        group.label = label;
+        for (var i = 0; i < n; ++i)
+          group.appendChild(select.querySelectorAll('option')[0]);
+        select.appendChild(group);
+      }
+
+      category('CHIP-8', games[0].length);
+      category('SUPER CHIP-8', games[1].length);
 
       hosted.onChange(function(name) {
 
