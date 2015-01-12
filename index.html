@@ -73,6 +73,8 @@
       category('CHIP-8', games[0].length);
       category('SUPER CHIP-8', games[1].length);
 
+      document.querySelector('select').selectedIndex = -1;
+
       hosted.onChange(function(name) {
 
         var request = new XMLHttpRequest(name);
@@ -110,6 +112,8 @@
       });
 
       game.open();
+
+      // Various Settings
 
       var cpu = gui.addFolder('CPU');
       cpu.add(Cheapo.CPU, 'frequency').min(0).max(1000);
