@@ -72,7 +72,6 @@
 
       category('CHIP-8', games[0].length);
       category('SUPER CHIP-8', games[1].length);
-
       document.querySelector('select').selectedIndex = -1;
 
       hosted.onChange(function(name) {
@@ -83,11 +82,12 @@
         request.responseType = 'arraybuffer';
 
         request.onload = function() {
-
           Cheapo.Main.load(request.response);
         };
 
         request.send();
+
+        document.querySelector('select').blur(); // Remove focus to avoid accidental changes when playing
       });
 
       // ... Or load a local file
