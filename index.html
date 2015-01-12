@@ -1,6 +1,6 @@
 <!doctype html>
 <head>
-  <title>Cheapo — A Javascript CHIP-8 emulator</title>
+  <title>Cheapo.js — A Javascript CHIP-8 and Super CHIP-8 emulator</title>
   <meta charset="utf-8">
 
   <script src="src/cpu.js"></script>
@@ -16,8 +16,8 @@
 <body>
 
   <header>
-    <h1>Cheapo</h1><br/>
-    <h2>A Javascript CHIP-8 emulator</h2>
+    <h1>Cheapo.js</h1><br/>
+    <h2>A CHIP-8 and Super CHIP-8 emulator</h2>
   </header>
 
   <canvas width="512" height="256"></canvas>
@@ -34,8 +34,8 @@
   <footer>
     <ul>
       <li>Source code <a href="https://github.com/merwaaan/cheapo.js">here</a></li>
-      <li>ROMs from <a href="http://www.pong-story.com/chip8/">David Winter's emulator</a></li>
-      <li>Nice technical references: <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM">Cowgod's</a> and <a href="http://mattmik.com/chip8.html">Matthew Mikolay's</a></li>
+      <li>Nice technical references: <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM">Cowgod's</a>, <a href="http://mattmik.com/chip8.html">Matthew Mikolay's</a> and <a href="http://devernay.free.fr/hacks/chip8/schip.txt">Eryk Bryntse's</a></li>
+      <li>Games from various authors (<a href="http://www.chip8.com/?page=84">CHIP-8</a> / <a href="http://www.chip8.com/?page=85">Super CHIP-8</a>)</li>
     </ul></ul>
   </footer>
 
@@ -56,8 +56,8 @@
       // Select one of the hosted ROMS...
 
       var games = [
-        ['Animal Race', 'Astro Dodge', 'Blinky', 'Blitz', 'Brix', 'Hidden', 'Maze', 'Missile', 'Space Invaders', 'Tetris', 'Tic Tac', 'UFO'], // CHIP-8
-        ['Alien', 'Super Blinky', 'Car Race', 'Field!', 'Joust', 'Sokoban', 'Super Astro Dodge', 'U-Boat'] // Super CHIP-8
+        ['Animal Race', 'Astro Dodge', 'Blinky', 'Blitz', 'Brix', 'Hidden', 'Lunar Lander', 'Maze', 'Missile', 'Space Invaders', 'Tetris', 'Tic Tac', 'UFO'], // CHIP-8
+        ['Alien', 'Car', 'Field!', 'H. Piper', 'Loopz', 'Joust', 'Rush Hour', 'Sokoban', 'Super Astro Dodge', 'U-Boat'] // Super CHIP-8
       ];
       var hosted = game.add({load:''}, 'load', games[0].concat(games[1])).name('Select');
 
@@ -83,10 +83,6 @@
         request.onload = function() {
 
           Cheapo.Main.load(request.response);
-
-          // BLITZ cannot be won with wrap mode on
-          if (name == 'BLITZ')
-            Cheapo.Video.wrap = false;
         };
 
         request.send();

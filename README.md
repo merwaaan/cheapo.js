@@ -1,6 +1,8 @@
 # Cheapo.js
 
-Cheapo is a CHIP-8 emulator written in JavaScript. Try it [here](http://merwanachibet.net/cheapo.js/).
+Cheapo is a CHIP-8/Super CHIP-8 emulator written in JavaScript. Try it [here](http://merwanachibet.net/cheapo.js/).
+
+## CHIP-8
 
 ![Maze](https://raw.githubusercontent.com/merwaaan/cheapo.js/master/maze.png)
 
@@ -8,6 +10,10 @@ Cheapo is a CHIP-8 emulator written in JavaScript. Try it [here](http://merwanac
 
 ![Brix](https://raw.githubusercontent.com/merwaaan/cheapo.js/master/brix.png)
 
-Currently, most games seem to work without issues. Some parts that still need a bit of work:
-* There is a lot of screen flickering because of the constant CLS calls (some kind of software double buffering could help?)
-* Binary XmlHttpRequests used to get ROMs retrieve wrong data on Chrome (but this works well locally, or with Firefox)
+## Super CHIP-8
+
+![Car](https://raw.githubusercontent.com/merwaaan/cheapo.js/master/car.png)
+
+![Super Astro Dodge](https://raw.githubusercontent.com/merwaaan/cheapo.js/master/astro.png)
+
+![Joust](https://raw.githubusercontent.com/merwaaan/cheapo.js/master/joust.png)
