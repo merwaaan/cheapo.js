@@ -18,13 +18,6 @@ Cheapo.Audio = (function() {
     _oscillator.type = 0;
     _oscillator.frequency.value = frequency;
     _oscillator.connect(_gain);
-
-    // When this oscillator is stopped, create a
-    // new oscillator to play the next tone
-
-    _oscillator.onended = function() {
-      create_oscillator();
-    };
   }
 
   return {
@@ -47,6 +40,7 @@ Cheapo.Audio = (function() {
     reset: function() {
 
       this.toggle(false);
+      _playing = false;
     },
 
     toggle: function(on) {
@@ -55,9 +49,10 @@ Cheapo.Audio = (function() {
         _oscillator.start();
         _playing = true;
       }
-      else if (_playing) {
+      else if (!on && _playing) {
         _oscillator.stop();
         _playing = false;
+        create_oscillator(); // Prepare a new oscillator for the next tone
       }
     }
 

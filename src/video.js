@@ -109,7 +109,6 @@ Cheapo.Video = (function() {
         else {
           line = Cheapo.CPU.memory[address + i * 2];
           line = line << 8 | Cheapo.CPU.memory[address + i * 2 + 1];
-          w = 16;
         }
 
         // Loop through the pixels

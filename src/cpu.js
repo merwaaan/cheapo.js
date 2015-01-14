@@ -158,8 +158,8 @@ Cheapo.CPU = (function() {
     CLS: function() { Cheapo.Video.clear() },
     DRW_Vx_Vy_n: function(x, y, n) { this.V[0xF] = +Cheapo.Video.sprite(this.I, this.V[x], this.V[y], n) },
     SCD_n: function(n) { Cheapo.Video.scroll(0, n) },
-    SCR: function() { Cheapo.Video.scroll(4, 0) },
-    SCL: function() { Cheapo.Video.scroll(-4, 0) },
+    SCR: function() { Cheapo.Video.scroll(4, 0); console.log('sc'); },
+    SCL: function() { Cheapo.Video.scroll(-4, 0); console.log('sc'); },
     LOW: function() { Cheapo.Video.extend(false) },
     HIGH: function() { Cheapo.Video.extend(true) }
   };
@@ -343,7 +343,7 @@ Cheapo.CPU = (function() {
 
         var opcode_data = _jumptable[opcode];
         if (opcode_data) {
-          console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
+          //console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
           opcode_data.instruction.apply(this, opcode_data.parameters);
         }
         else {
