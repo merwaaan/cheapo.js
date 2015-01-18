@@ -39,6 +39,8 @@ Cheapo.Input = (function() {
 
   var _keyboard = null;
 
+  var _key_binding_listener = null;
+
   var toggle_visual_keyboard = function(on) {
 
     if (_keyboard)
@@ -139,19 +141,35 @@ Cheapo.Input = (function() {
 
       // Bind the Chip-8 key to the first pressed key
 
-      document.addEventListener('keydown', function() {
+      var input = this;
+      _key_binding_listener = document.addEventListener('keydown', function me(event) {
+
+        // Check that the key was not already bound in this sequence
+
+        if (_mapping[event.keyCode] !== undefined && _mapping[event.keyCode] < key) {
+          console.warn('The ' + String.fromCharCode(event.keyCode) + ' key is already bound to ' + _mapping[event.keyCode].toString(16).toUpperCase());
+          return;
+        }
+
+        // Remove the previous key
+
+        for (var k in _mapping)
+          if (_mapping[k] == key)
+            delete _mapping[k];
+
+        // Bind the new key
+
+        _mapping[event.keyCode] = key;
 
         cell.className = '';
-
-        // TODO bind + remove listener
-        // ...
+        document.removeEventListener('keydown', me);
 
         // Continue the binding sequence with the next key
 
         if (key < 0xF)
-          this.set_key(key + 1);
+          input.set_key(key + 1);
 
-      }.bind(this));
+      });
     }
 
   };
