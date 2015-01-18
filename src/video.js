@@ -194,6 +194,21 @@ Cheapo.Video = (function() {
       _map = [];
       for (var i = 0, l = _resolution.x * _resolution.y; i < l; ++i)
         _map.push(false);
+    },
+
+    fullscreen: function() {
+
+      // Meh...
+      if (canvas.requestFullscreen)
+        canvas.requestFullscreen();
+      else if (canvas.webkitRequestFullscreen)
+        canvas.webkitRequestFullscreen();
+      else if (canvas.mozRequestFullScreen)
+        canvas.mozRequestFullScreen;
+      else if (canvas.msRequestFullscreen)
+        canvas.msRequestFullscreen();
+
+      // TODO change the scale to fit the window
     }
 
   };

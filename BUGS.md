@@ -6,6 +6,6 @@
 # Game-specific
 
 * Lunar Lander: Explosion looks weird when losing
-* Field!: Looks weird
+* Field!: Does not start
 * Animal Race: animals create pixel trails (bug in XOR mode?)
 

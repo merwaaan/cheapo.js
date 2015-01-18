@@ -82,7 +82,7 @@ Cheapo.CPU = (function() {
     SE_Vx_Vy: function(x, y) { if (this.V[x] == this.V[y]) this.PC += 2 },
     SNE_Vx_byte: function(x, byte) { if (this.V[x] != byte) this.PC += 2 },
     SNE_Vx_Vy: function(x, y) { if (this.V[x] != this.V[y]) this.PC += 2 },
-    SKP_Vx: function(x) { if (Cheapo.Input.down(this.V[x])) this.PC += 2 },
+    SKP_Vx: function(x) { console.log(x, this.V[x]);if (Cheapo.Input.down(this.V[x])) this.PC += 2 },
     SKNP_Vx: function(x) { if (!Cheapo.Input.down(this.V[x])) this.PC += 2 },
 
     // Arithmetic
@@ -346,9 +346,8 @@ Cheapo.CPU = (function() {
           console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
           opcode_data.instruction.apply(this, opcode_data.parameters);
         }
-        else {
+        else
           console.log('Undefined opcode [%s]', opcode.toString(16));
-        }
 
         this.PC = (this.PC + 2) & 0xFFF;
       }
