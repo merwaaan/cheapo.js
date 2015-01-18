@@ -39,6 +39,7 @@ Cheapo.Video = (function() {
 
   var _resolution = {x: 64, y:32};
   var _scale = 4;
+  var _scale_before_fullscreen = _scale;
 
   function set_scale(scale) {
 
@@ -72,6 +73,8 @@ Cheapo.Video = (function() {
 
     init: function() {
 
+      // Initialize the canvas
+
       var canvas = document.querySelector('canvas');
       _ctx = canvas.getContext('2d');
       set_color(_color);
@@ -81,6 +84,26 @@ Cheapo.Video = (function() {
       _map = [];
       for (var i = 0, l = _resolution.x * _resolution.y; i < l; ++i)
         _map.push(false);
+
+      // Go full screen when the canvas is clicked
+
+      canvas.addEventListener('click', function() {
+        this.fullscreen();
+      }.bind(this));
+
+      // When switching to full screen, scale the canvas up
+
+      if (screenfull.enabled)
+        document.addEventListener(screenfull.raw.fullscreenchange, function() {
+
+          if (screenfull.isFullscreen) {
+            _scale_before_fullscreen = _scale;
+            set_scale(Math.min(Math.floor(window.screen.width / 128), Math.floor(window.screen.height / 64)))
+          }
+          else {
+            set_scale(_scale_before_fullscreen);
+          }
+        });
     },
 
     reset: function() {
@@ -198,17 +221,10 @@ Cheapo.Video = (function() {
 
     fullscreen: function() {
 
-      // Meh...
-      if (canvas.requestFullscreen)
-        canvas.requestFullscreen();
-      else if (canvas.webkitRequestFullscreen)
-        canvas.webkitRequestFullscreen();
-      else if (canvas.mozRequestFullScreen)
-        canvas.mozRequestFullScreen;
-      else if (canvas.msRequestFullscreen)
-        canvas.msRequestFullscreen();
+      if (!screenfull.enabled)
+        console.warn('Full screen is not supported by this browser');
 
-      // TODO change the scale to fit the window
+      screenfull.request(_ctx.canvas);
     }
 
   };
