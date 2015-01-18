@@ -11,6 +11,7 @@
 
   <script src="lib/dat.gui.min.js"></script>
   <script src="lib/screenfull.min.js"></script>
+  <script src="lib/find_polyfill.js"></script>
 
   <link rel="stylesheet" type="text/css" href="screen.css"/>
 </head>
@@ -131,6 +132,7 @@
 
       var input = gui.addFolder('Input');
       input.add(Cheapo.Input, 'visual_keyboard').name('Visual keyboard');
+      input.add(Cheapo.Input, 'set_keys').name('Set keys');
     });
 
   </script>

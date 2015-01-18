@@ -53,6 +53,12 @@ table#keyboard td:hover {
 	cursor: pointer;
 }
 
+table#keyboard td.setup {
+	background-color: #e61d5f;
+	color: white;
+	font-weight: bold;
+}
+
 footer {
 	margin: 2.5em;
 	font-size: 0.9em;

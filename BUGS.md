@@ -1,7 +1,6 @@
 # General
 
-* ROMs are corrupted when retrieved via XmlHttpRequest on Chrome (works locally or with Firefox)
-* Not a bug, but fullscreen would be nice
+* ROMs are sometimes corrupted when retrieved via XmlHttpRequest on Chrome (works locally or with Firefox)
 
 # Game-specific
 

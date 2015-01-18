@@ -112,6 +112,46 @@ Cheapo.Input = (function() {
     down: function(key) {
 
       return _keys[key];
+    },
+
+    set_keys: function() {
+
+      // Show the visual keyboard and start the key binding sequence
+
+      if (!this.visual_keyboard)
+        this.visual_keyboard = true;
+
+      this.set_key(0);
+    },
+
+    set_key: function(key) {
+
+      // Change the style of the key being bound
+
+      var cells = _keyboard.querySelectorAll('td');
+      var hex = key.toString(16).toUpperCase();
+
+      var cell = [].find.call(cells, function(c) {
+        return c.innerHTML == hex;
+      });
+
+      cell.className = 'setup';
+
+      // Bind the Chip-8 key to the first pressed key
+
+      document.addEventListener('keydown', function() {
+
+        cell.className = '';
+
+        // TODO bind + remove listener
+        // ...
+
+        // Continue the binding sequence with the next key
+
+        if (key < 0xF)
+          this.set_key(key + 1);
+
+      }.bind(this));
     }
 
   };
