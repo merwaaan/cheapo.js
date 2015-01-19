@@ -82,7 +82,15 @@ Cheapo.Input = (function() {
       var cells = _keyboard.querySelectorAll('td');
       for (var i = 0; i < cells.length; ++i) {
 
-        var key = parseInt(cells[i].innerHTML, 16);
+        var key = parseInt(cells[i].textContent[0], 16);
+
+        var binding = document.createElement('span');
+        for (var k in _mapping)
+          if (_mapping[k] === key) {
+            binding.textContent = String.fromCharCode(k);
+            break;
+          }
+        cells[i].appendChild(binding);
 
         cells[i].addEventListener('mousedown', function(key) {
           return function() {
@@ -121,12 +129,12 @@ Cheapo.Input = (function() {
       // Show the visual keyboard and start the key binding sequence
 
       if (!this.visual_keyboard)
-        this.visual_keyboard = true;
+        toggle_visual_keyboard(true);
 
-      this.set_key(0);
+      this.set_key(0, true);
     },
 
-    set_key: function(key) {
+    set_key: function(key, loop) {
 
       // Change the style of the key being bound
 
@@ -134,7 +142,7 @@ Cheapo.Input = (function() {
       var hex = key.toString(16).toUpperCase();
 
       var cell = [].find.call(cells, function(c) {
-        return c.innerHTML == hex;
+        return c.textContent[0] == hex;
       });
 
       cell.className = 'setup';
@@ -162,12 +170,13 @@ Cheapo.Input = (function() {
         _mapping[event.keyCode] = key;
 
         cell.className = '';
+        cell.children[0].textContent = String.fromCharCode(event.keyCode);
         document.removeEventListener('keydown', me);
 
         // Continue the binding sequence with the next key
 
-        if (key < 0xF)
-          input.set_key(key + 1);
+        if (loop && key < 0xF)
+          input.set_key(key + 1, true);
 
       });
     }

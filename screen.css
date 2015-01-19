@@ -59,6 +59,12 @@ table#keyboard td.setup {
 	font-weight: bold;
 }
 
+table#keyboard span {
+	color: lightgray;
+	font-size: 0.9em;
+	padding-left: 0.3em;
+}
+
 footer {
 	margin: 2.5em;
 	font-size: 0.9em;
