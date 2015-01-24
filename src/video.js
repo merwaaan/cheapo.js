@@ -34,7 +34,7 @@ Cheapo.Video = (function() {
   }
 
   /**
-    * Screen size & position
+    * Screen size
     */
 
   var _resolution = {x: 64, y:32};

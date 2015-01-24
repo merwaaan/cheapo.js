@@ -118,13 +118,15 @@ Cheapo.CPU = (function() {
       this.V[x] = this.V[y] - this.V[x];
     },
 
-    SHL_Vx_Vy: function(x, y) { // What is Vy for???
-      this.V[0xF] = (this.V[x] & 0x80) >> 7;
-      this.V[x] <<= 1;
+    SHL_Vx_Vy: function(x, y) {
+      var v = this.quirks.VY_shift ? y : x;
+      this.V[0xF] = (this.V[v] & 0x80) >> 7;
+      this.V[x] = this.V[v] <<= 1;
     },
-    SHR_Vx_Vy: function(x, y) { // What is Vy for???
-      this.V[0xF] = this.V[x] & 1;
-      this.V[x] >>= 1;
+    SHR_Vx_Vy: function(x, y) {
+      var v = this.quirks.VY_shift ? y : x;
+      this.V[0xF] = this.V[v] & 1;
+      this.V[x] = this.V[v] >>= 1;
     },
 
     RND_Vx_byte: function(x, byte) { this.V[x] = Math.floor(Math.random() * 0xFF) & byte },
@@ -139,8 +141,8 @@ Cheapo.CPU = (function() {
     LD_ST_Vx: function(x) { if ((this.ST = this.V[x]) > 1) Cheapo.Audio.toggle(true) },
     LD_LF_Vx: function(x) { this.I = this.V[x] * 5 },
     LD_HF_Vx: function(x) { this.I = 80 + this.V[x] * 10 },
-    LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; /*this.I += x + 1;*/ }, // Should I be incremented?
-    LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; /*this.I += x + 1;*/ },
+    LD_I_Vx: function(x) { for (var i = 0; i <= x; ++i) this.memory[this.I + i] = this.V[i]; if (this.quirks.I_increment) this.I += x + 1 },
+    LD_Vx_I: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.memory[this.I + i]; if (this.quirks.I_increment) this.I += x + 1},
     LD_R_Vx: function(x) { for (var i = 0; i <= x; ++i) this.R[i] = this.V[i]; },
     LD_Vx_R: function(x) { for (var i = 0; i <= x; ++i) this.V[i] = this.R[i]; },
 
@@ -252,6 +254,16 @@ Cheapo.CPU = (function() {
 
     DT: 0,
     ST: 0,
+
+    /**
+      * Quirks to handle unclear behaviors, as proposed by mir3z
+      * http://mir3z.github.io/chip8-emu/doc/#toc1
+      */
+
+    quirks: {
+      I_increment: true,
+      VY_shift: true
+    },
 
     init: function() {
 

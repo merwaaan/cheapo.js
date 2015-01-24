@@ -35,9 +35,10 @@
 
   <footer>
     <ul>
-      <li>Source code <a href="https://github.com/merwaaan/cheapo.js">here</a></li>
+      <li>If some games do not work, play with the CPU > Quirks settings (<a href="http://mir3z.github.io/chip8-emu/doc/#toc1">explanation</a>)</li>
       <li>Nice technical references: <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM">Cowgod's</a>, <a href="http://mattmik.com/chip8.html">Matthew Mikolay's</a> and <a href="http://devernay.free.fr/hacks/chip8/schip.txt">Eryk Bryntse's</a></li>
       <li>Games from various authors (<a href="http://www.chip8.com/?page=84">CHIP-8</a> / <a href="http://www.chip8.com/?page=85">Super CHIP-8</a>)</li>
+      <li>Source code <a href="https://github.com/merwaaan/cheapo.js">here</a></li>
     </ul></ul>
   </footer>
 
@@ -120,6 +121,9 @@
       var cpu = gui.addFolder('CPU');
       cpu.add(Cheapo.CPU, 'frequency').min(0).max(5000).name('clock rate');
       cpu.add(Cheapo.CPU, 'timer_frequency').min(0).max(5000).name('timer rate');
+      var quirks = cpu.addFolder('Quirks');
+      quirks.add(Cheapo.CPU.quirks, 'I_increment');
+      quirks.add(Cheapo.CPU.quirks, 'VY_shift');
 
       var video = gui.addFolder('Video')
       video.add(Cheapo.Video, 'scale').min(1).max(10).step(1);
