@@ -21,10 +21,15 @@ Cheapo.Main = (function() {
 
     reset: function() {
 
+      this.stop();
+
       Cheapo.CPU.reset();
       Cheapo.Video.reset();
       Cheapo.Audio.reset();
       Cheapo.Input.reset();
+
+      if (Cheapo.CPU.ready)
+        this.run();
     },
 
     load: function(buffer) {

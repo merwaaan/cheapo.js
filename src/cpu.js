@@ -5,6 +5,13 @@ Cheapo.CPU = (function() {
   'use strict';
 
   /**
+    * Is the CPU ready to run?
+    * (Was a game loaded?)
+    */
+
+  var _ready = false;
+
+  /**
     * Is the CPU waiting for a keypress?
     */
 
@@ -239,6 +246,8 @@ Cheapo.CPU = (function() {
 
     memory: new Uint8Array(0x1000),
 
+    get ready() { return _ready; },
+
     /**
       * Registers
       */
@@ -315,6 +324,11 @@ Cheapo.CPU = (function() {
       register('Fx30', _instructions.LD_HF_Vx);
       register('Fx75', _instructions.LD_R_Vx);
       register('Fx85', _instructions.LD_Vx_R);
+
+      // Put the font data at 0
+
+      for (var i = 0; i < _font.length; ++i)
+        this.memory[i] = _font[i];
     },
 
     reset: function() {
@@ -334,13 +348,6 @@ Cheapo.CPU = (function() {
 
       for (var i = 0; i < 8; ++i)
         this.R[i] = 0;
-
-      // Reset the memory
-      this.memory = new Uint8Array(0x1000);
-
-      // Put the font data at 0
-      for (var i = 0; i < _font.length; ++i)
-        this.memory[i] = _font[i];
     },
 
     load: function(buffer) {
@@ -348,6 +355,8 @@ Cheapo.CPU = (function() {
       buffer = new Uint8Array(buffer);
       for (var i = 0; i < buffer.length; ++i)
         this.memory[0x200 + i] = buffer[i];
+
+      _ready = true;
     },
 
     step: function(dt) {
