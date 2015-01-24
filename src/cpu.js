@@ -198,9 +198,7 @@ Cheapo.CPU = (function() {
     // just put the instruction in the jumptable
 
     if (!wildcards)
-      _jumptable[parseInt(pattern, 16)] = {
-        instruction: instruction
-      };
+      _jumptable[parseInt(pattern, 16)] = instruction.bind(Cheapo.CPU);
 
     // If there are wildcards, enumerate the possible opcodes and
     // fill the jumptable with the instruction and precomputed parameters
@@ -229,10 +227,9 @@ Cheapo.CPU = (function() {
           cursor += wildcards[j].length;
         }
 
-        _jumptable[parseInt(opcode, 16)] = {
-          instruction: instruction,
-          parameters: parameters
-        };
+        // Cache the instruction in the jumptable and bind it
+        // to the CPU and the precomputed parameters
+        _jumptable[parseInt(opcode, 16)] = instruction.bind.apply(instruction, [Cheapo.CPU].concat(parameters));
       }
     }
   };
@@ -371,11 +368,9 @@ Cheapo.CPU = (function() {
 
         // Fetch the implementation cached in the jumptable
 
-        var opcode_data = _jumptable[opcode];
-        if (opcode_data) {
-          //console.log(opcode.toString(16), opcode_data.instruction.prototype, opcode_data.parameters ? opcode_data.parameters.map(function(i){ return i.toString(16) }) : '');
-          opcode_data.instruction.apply(this, opcode_data.parameters);
-        }
+        var instruction = _jumptable[opcode];
+        if (instruction)
+          instruction();
         else
           console.log('Undefined opcode [%s]', opcode.toString(16));
 
