@@ -65,11 +65,16 @@ Cheapo.Video = (function() {
 
   return {
 
-    get color() { return _color }, set color(x) { set_color(x) },
-    get background() { return _background }, set background(x) { set_background(x) },
+    get color() { return _color },
+    set color(x) { set_color(x) },
+
+    get background() { return _background },
+    set background(x) { set_background(x) },
 
     get extended() { return _resolution.x == 128 },
-    get scale() { return _scale }, set scale(x) { set_scale(x) },
+
+    get scale() { return _scale },
+    set scale(x) { set_scale(x) },
 
     init: function() {
 

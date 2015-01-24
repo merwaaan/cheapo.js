@@ -51,11 +51,11 @@ Cheapo.Main = (function() {
       var diff = now - _last_frame;
 
       var ticks = diff / 1000 * Cheapo.CPU.frequency + _ticks_rest;
-      _ticks_rest = ticks % 1;
+      _ticks_rest = ticks % 1; // Keep the "part-tick" not consumed in this frame for the next one
       ticks = Math.floor(ticks);
 
       var tick_duration = diff / ticks;
-      for (var i = 0, t = ticks; i < t; ++i)
+      for (var i = 0; i < ticks; ++i)
         Cheapo.CPU.step(tick_duration);
 
       _last_frame = now;

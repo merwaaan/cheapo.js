@@ -11,6 +11,12 @@ Cheapo.CPU = (function() {
   var _waiting = false;
 
   /**
+    * Delay for the timers to be decremented.
+    */
+
+  var _timer_delay = 0.01666666666; // -> ~60 Hz
+
+  /**
     * Accumulate time over several frames
     * (useful for updating the timers)
     */
@@ -224,9 +230,12 @@ Cheapo.CPU = (function() {
 
   return {
 
-    memory: new Uint8Array(0x1000),
-
     frequency: 500,
+
+    get timer_frequency() { return 1 / _timer_delay },
+    set timer_frequency(x) { _timer_delay = 1 / x },
+
+    memory: new Uint8Array(0x1000),
 
     /**
       * Registers
@@ -361,7 +370,7 @@ Cheapo.CPU = (function() {
 
       _dt_acc += dt;
 
-      if (_dt_acc > 17) { // 60 Hz -> ~17 ms
+      if (_dt_acc > _timer_delay) {
 
         if (this.DT > 0)
           --this.DT;
@@ -372,7 +381,7 @@ Cheapo.CPU = (function() {
             Cheapo.Audio.toggle(false);
         }
 
-        _dt_acc -= 17;
+        _dt_acc -= _timer_delay;
       }
     },
 

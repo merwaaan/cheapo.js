@@ -22,8 +22,12 @@ Cheapo.Audio = (function() {
 
   return {
 
-    get volume() { return _gain.gain.value * 100 }, set volume(x) { _gain.gain.value = x / 100; },
-    get frequency() { return _oscillator.frequency.value }, set frequency(x) { _oscillator.frequency.value = x; },
+    get volume() { return _gain.gain.value * 100 },
+    set volume(x) { _gain.gain.value = x / 100; },
+
+    get frequency() { return _oscillator.frequency.value },
+    set frequency(x) { _oscillator.frequency.value = x; },
+
     get playing() { return _playing },
 
     init: function() {

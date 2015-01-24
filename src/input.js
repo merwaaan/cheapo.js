@@ -52,7 +52,8 @@ Cheapo.Input = (function() {
     // Callback function called on key press
     callback: null,
 
-    get visual_keyboard() { return _keyboard.style.display != 'none' }, set visual_keyboard(x) { toggle_visual_keyboard(x) },
+    get visual_keyboard() { return _keyboard.style.display != 'none' },
+    set visual_keyboard(x) { toggle_visual_keyboard(x) },
 
     init: function() {
 

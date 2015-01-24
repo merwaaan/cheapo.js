@@ -7,4 +7,5 @@
 * Lunar Lander: Explosion looks weird when losing
 * Field!: Does not start
 * Animal Race: animals create pixel trails (bug in XOR mode?)
+* Tetris: garbled graphics when tetraminoes reach the top
 
