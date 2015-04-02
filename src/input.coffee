@@ -1,41 +1,55 @@
-var Cheapo = Cheapo || {};
+_ = require 'lodash'
 
-Cheapo.Input = (function() {
+class Input
 
-  'use strict';
+  constructor: (@cheapo) ->
 
-  /**
-    * Keyboard state
-    */
+    # Keyboard state
+    @keys = [off, off, off, off, off, off, off, off, off, off, off, off, off, off, off, off]
 
-  var _keys = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+    # Mapping between modern keyboard and weird prehistoric hex keyboard
+    @mapping =
+      86: 0x0
+      51: 0x1
+      52: 0x2
+      53: 0x3
+      69: 0x4
+      82: 0x5
+      84: 0x6
+      68: 0x7
+      70: 0x8
+      71: 0x9
+      67: 0xA
+      66: 0xB
+      54: 0xC
+      89: 0xD
+      72: 0xE
+      78: 0xF
 
-  /**
-    * Mapping between modern keyboard and weird prehistoric hex keyboard
-    */
+    # Callback function called on key press
+    @callback = null
 
-  var _mapping = {
-    86: 0x0,
-    51: 0x1,
-    52: 0x2,
-    53: 0x3,
-    69: 0x4,
-    82: 0x5,
-    84: 0x6,
-    68: 0x7,
-    70: 0x8,
-    71: 0x9,
-    67: 0xA,
-    66: 0xB,
-    54: 0xC,
-    89: 0xD,
-    72: 0xE,
-    78: 0xF
-  };
+    document.addEventListener 'keydown', ({keyCode}) =>
+      if keyCode of @mapping
+        @keys[@mapping[keyCode]] = on
+        @callback?(@mapping[keyCode])
 
-  /**
-    * HTML table containing a visual keyboard.
-    */
+    document.addEventListener 'keyup', ({keyCode}) =>
+      if keyCode of @mapping
+        @keys[@mapping[keyCode]] = off
+
+  reset: ->
+    _.fill @keys, off
+    @callback = null
+
+  down: (key) ->
+    @keys[key]
+
+
+
+
+  ###
+
 
   var _keyboard = null;
 
@@ -49,32 +63,9 @@ Cheapo.Input = (function() {
 
   return {
 
-    // Callback function called on key press
-    callback: null,
 
     get visual_keyboard() { return _keyboard.style.display != 'none' },
     set visual_keyboard(x) { toggle_visual_keyboard(x) },
-
-    init: function() {
-
-      // Setup event listeners on key down and key up
-
-      document.addEventListener('keydown', function(event) {
-        if (event.keyCode in _mapping) {
-
-          _keys[_mapping[event.keyCode]] = true;
-
-          if (this.callback)
-            this.callback(_mapping[event.keyCode]);
-        }
-      }.bind(this));
-
-      document.addEventListener('keyup', function(event) {
-        if (event.keyCode in _mapping) {
-
-          _keys[_mapping[event.keyCode]] = false;
-        }
-      });
 
       // Setup the visual keyboard
 
@@ -112,18 +103,6 @@ Cheapo.Input = (function() {
       }
     },
 
-    reset: function() {
-
-      for (var i = 0; i < _keys.length; ++i)
-        _keys[i] = false;
-
-      this.callback = null;
-    },
-
-    down: function(key) {
-
-      return _keys[key];
-    },
 
     set_keys: function() {
 
@@ -179,9 +158,7 @@ Cheapo.Input = (function() {
         if (loop && key < 0xF)
           input.set_key(key + 1, true);
 
-      });
-    }
+  ###
 
-  };
 
-})();
+module.exports = Input

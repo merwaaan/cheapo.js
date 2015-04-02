@@ -1,0 +1,30 @@
+{
+  "name": "cheapo.js",
+  "version": "1.0.0",
+  "description": "CHIP-8 and Super CHIP-8 emulator",
+  "main": "cheapo.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/merwaaan/cheapo.js.git"
+  },
+  "keywords": [
+    "chip-8",
+    "emulator"
+  ],
+  "author": "Merwan Achibet <achibet.merwan@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/merwaaan/cheapo.js/issues"
+  },
+  "homepage": "https://github.com/merwaaan/cheapo.js",
+  "devDependencies": {
+    "coffee-reactify": "^3.0.0",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.6.0",
+    "grunt-contrib-coffee": "^0.13.0",
+    "grunt-contrib-uglify": "^0.8.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "lodash": "^3.6.0",
+    "screenfull": "^2.0.0"
+  }
+}

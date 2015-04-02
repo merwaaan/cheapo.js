@@ -3,17 +3,10 @@
   <meta charset="utf-8">
   <title>Cheapo.js — A Javascript CHIP-8 and Super CHIP-8 emulator</title>
 
-  <script src="src/cpu.js"></script>
-  <script src="src/video.js"></script>
-  <script src="src/audio.js"></script>
-  <script src="src/input.js"></script>
-  <script src="src/main.js"></script>
-
   <script src="lib/dat.gui.min.js"></script>
-  <script src="lib/screenfull.min.js"></script>
-  <script src="lib/find_polyfill.js"></script>
+  <script src="cheapo.js"></script>
 
-  <link rel="stylesheet" type="text/css" href="screen.css"/>
+  <link rel="stylesheet" type="text/css" href="cheapo.css"/>
 </head>
 <body>
 
@@ -22,7 +15,8 @@
     <h2>A CHIP-8 and Super CHIP-8 emulator</h2>
   </header>
 
-  <canvas width="512" height="256"></canvas>
+  <section id="canvas">
+  </section>
 
   <table id="keyboard" style="display:none">
     <tr><td>1</td><td>2</td><td>3</td><td>C</td></tr>
@@ -45,15 +39,13 @@
   <script>
 
     // Go Cheapo, go!
-
     window.addEventListener('load', function() {
 
-      Cheapo.Main.init();
+      var container = document.getElementById('canvas');
+      var cheapo = new Cheapo(container);
 
       // GUI
-
       var gui = new dat.GUI();
-
       var game = gui.addFolder('Game');
 
       // Select one of the hosted ROMS...
@@ -62,7 +54,7 @@
         ['Animal Race', 'Astro Dodge', 'Blinky', 'Blitz', 'Brix', 'Hidden', 'Lunar Lander', 'Maze', 'Missile', 'Space Invaders', 'Tetris', 'Tic Tac', 'UFO'], // CHIP-8
         ['Alien', 'Car', 'Field!', 'H. Piper', 'Loopz', 'Joust', 'Rush Hour', 'Sokoban', 'Super Astro Dodge', 'U-Boat'] // Super CHIP-8
       ];
-      var hosted = game.add({load:''}, 'load', games[0].concat(games[1])).name('Select');
+      var hosted = game.add({load: ''}, 'load', games[0].concat(games[1])).name('Select');
 
       function category(label, n) {
         var select = document.querySelector('select');
@@ -85,7 +77,7 @@
         request.responseType = 'arraybuffer';
 
         request.onload = function() {
-          Cheapo.Main.load(request.response);
+          cheapo.load(request.response);
         };
 
         request.send();
@@ -103,42 +95,40 @@
         }
       }, 'load').name('Load a file');
 
-
       file_select.addEventListener('change', function() {
 
         var reader = new FileReader();
         reader.addEventListener('load', function() {
-          Cheapo.Main.load(this.result);
+          cheapo.load(this.result);
         });
 
         reader.readAsArrayBuffer(this.files[0]);
       });
 
-      game.add(Cheapo.Main, 'reset').name('Reset');
       game.open();
 
       // Various Settings
 
       var cpu = gui.addFolder('CPU');
-      cpu.add(Cheapo.CPU, 'frequency').min(0).max(5000).name('clock rate');
-      cpu.add(Cheapo.CPU, 'timer_frequency').min(0).max(5000).name('timer rate');
+      cpu.add(cheapo.cpu, 'frequency').min(0).max(5000).name('clock rate');
+      cpu.add(cheapo.cpu, 'timerFrequency').min(0).max(5000).name('timer rate');
       var quirks = cpu.addFolder('Quirks');
-      quirks.add(Cheapo.CPU.quirks, 'I_increment');
-      quirks.add(Cheapo.CPU.quirks, 'VY_shift');
+      quirks.add(cheapo.cpu.quirks, 'I_increment');
+      quirks.add(cheapo.cpu.quirks, 'VY_shift');
 
       var video = gui.addFolder('Video')
-      video.add(Cheapo.Video, 'scale').min(1).max(10).step(1);
-      video.addColor(Cheapo.Video, 'color');
-      video.addColor(Cheapo.Video, 'background');
-      video.add(Cheapo.Video, 'fullscreen').name('Go full screen');
+      video.add(cheapo.video, 'size').min(1).max(10).step(1);
+      video.addColor(cheapo.video, 'foreground');
+      video.addColor(cheapo.video, 'background');
+      video.add(cheapo.video, 'fullscreen').name('Go full screen');
 
       var audio = gui.addFolder('Audio');
-      audio.add(Cheapo.Audio, 'volume').min(0).max(100).step(1);
-      audio.add(Cheapo.Audio, 'frequency').min(0).max(1000).step(1);
-
+      audio.add(cheapo.audio, 'volume').min(0).max(100).step(1);
+      audio.add(cheapo.audio, 'frequency').min(0).max(1000).step(1);
+/*
       var input = gui.addFolder('Input');
-      input.add(Cheapo.Input, 'visual_keyboard').name('Visual keyboard');
-      input.add(Cheapo.Input, 'set_keys').name('Set keys');
+      input.add(cheapo.input, 'visual_keyboard').name('Visual keyboard');
+      input.add(cheapo.input, 'set_keys').name('Set keys');*/
     });
 
   </script>
