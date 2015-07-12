@@ -14,22 +14,23 @@ header {
 	margin: 1em;
 }
 
-h1 {
-	font-size: 3em;
-	background-color: #1a1a1a;
+h1, h2 {
+	background-color: #1A1A1A;
 	color: white;
 	display: inline-block;
+}
+
+}
+h1 {
+	font-size: 3em;
 	padding: 0.3em;
 }
 
 h2 {
 	font-size: 1.2em;
-	background-color: #1a1a1a;
-	color: white;
-	display: inline-block;
 	padding: 0.6em;
 	padding-left: 0.85em;
-	border-bottom: 0.2em solid #e61d5f;
+	border-bottom: 0.2em solid #E61D5F;
 }
 
 canvas {
@@ -50,12 +51,12 @@ table#keyboard td {
 
 table#keyboard td:hover {
 	color: black;
-	background-color: lightgrey;
+	background-color: #F7E9ED;
 	cursor: pointer;
 }
 
 table#keyboard td.setup {
-	background-color: #e61d5f;
+	background-color: #E61D5F;
 	color: white;
 	font-weight: bold;
 }

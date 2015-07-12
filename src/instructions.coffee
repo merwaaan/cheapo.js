@@ -1,10 +1,9 @@
-# Instruction set
+# Instruction set.
+# Each instruction will be bound to the CPU.
 #
 # http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 # http://mattmik.com/chip8.html
 # http://devernay.free.fr/hacks/chip8/schip.txt
-#
-# Those instructions will be bound to the CPU.
 
 Instructions =
 
@@ -96,6 +95,5 @@ Instructions =
   SCL: -> @cheapo.video.scroll -4, 0
   LOW: -> @cheapo.video.extend off
   HIGH: -> @cheapo.video.extend on
-
 
 module.exports = Instructions

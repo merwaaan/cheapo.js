@@ -14,11 +14,11 @@ class Cheapo
       @input = new Input @
     ]
 
-    # Interval and delay between screen updates
+    # Interval between screen updates
     @interval = null
     @intervalDelay = 30
 
-    # When were the last frames drawn?
+    # When was the last frame drawn?
     @lastFrame = null
 
     # Partial tick not consumed during the last screen update
@@ -33,7 +33,7 @@ class Cheapo
   load: (buffer) ->
     @reset()
     @cpu.load buffer
-    @start() if @cpu.ready
+    @start()
 
   start: () ->
     @lastFrame = window.performance.now()
@@ -56,7 +56,6 @@ class Cheapo
       @cpu.step tickDuration
 
     @lastFrame = now
-
 
 window.Cheapo = Cheapo
 module.exports = Cheapo

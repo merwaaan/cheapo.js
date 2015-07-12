@@ -1,7 +1,6 @@
 module.exports = (grunt) ->
 
   grunt.loadNpmTasks 'grunt-browserify'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
 
@@ -13,7 +12,7 @@ module.exports = (grunt) ->
 
     browserify:
       options:
-        transform: ['coffee-reactify']
+        transform: ['coffeeify']
         browserifyOptions:
           debug: DEBUG
           extensions: ['.coffee']

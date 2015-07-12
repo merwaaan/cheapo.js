@@ -18,10 +18,9 @@
   },
   "homepage": "https://github.com/merwaaan/cheapo.js",
   "devDependencies": {
-    "coffee-reactify": "^3.0.0",
+    "coffeeify": "^1.1.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.6.0",
-    "grunt-contrib-coffee": "^0.13.0",
     "grunt-contrib-uglify": "^0.8.0",
     "grunt-contrib-watch": "^0.6.1",
     "lodash": "^3.6.0",

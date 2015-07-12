@@ -7,7 +7,7 @@ class Input
     # Keyboard state
     @keys = [off, off, off, off, off, off, off, off, off, off, off, off, off, off, off, off]
 
-    # Mapping between modern keyboard and weird prehistoric hex keyboard
+    # Mapping between modern keyboard and hex keyboard
     @mapping =
       86: 0x0
       51: 0x1
@@ -26,17 +26,22 @@ class Input
       72: 0xE
       78: 0xF
 
-    # Callback function called on key press
+    # Optional function called on key press
     @callback = null
 
     document.addEventListener 'keydown', ({keyCode}) =>
       if keyCode of @mapping
-        @keys[@mapping[keyCode]] = on
-        @callback?(@mapping[keyCode])
+        hex = @modern_to_hex keyCode
+        @keys[hex] = on
+        @callback?(hex)
 
     document.addEventListener 'keyup', ({keyCode}) =>
       if keyCode of @mapping
-        @keys[@mapping[keyCode]] = off
+        @keys[@modern_to_hex keyCode] = off
+
+    # Visual keyboard
+    @keyboard = null
+    @setup_visual_keyboard()
 
   reset: ->
     _.fill @keys, off
@@ -45,120 +50,86 @@ class Input
   down: (key) ->
     @keys[key]
 
+  modern_to_hex: (modern) ->
+    return @mapping[modern]
 
+  hex_to_modern: (hex) ->
+    for modern, h of @mapping
+      if h is hex
+        return modern
+    return null
 
+  toggle_visual_keyboard: (flag) ->
+    @keyboard.style.display = if flag is on then 'table' else 'none'
 
-  ###
+  setup_visual_keyboard: () ->
 
+    # Find the table that holds the visual keyboard
+    @keyboard = document.querySelector 'table#keyboard'
 
-  var _keyboard = null;
+    # Function that adds the binding of one key to the DOM
+    # and sets up its event listeners
+    setup_key = (cell) =>
 
-  var _key_binding_listener = null;
+      key = parseInt cell.textContent[0], 16
 
-  var toggle_visual_keyboard = function(on) {
+      # Append the corresponding keyboard key
+      binding = document.createElement 'span'
+      binding.textContent = String.fromCharCode @hex_to_modern key
+      cell.appendChild binding
 
-    if (_keyboard)
-      _keyboard.style.display = on ? 'table' : 'none';
-  }
+      # Attach mouse listeners to emulate keypresses
+      cell.addEventListener 'mousedown', () =>
+        @keys[key] = on
+        @callback?(key)
 
-  return {
+      cell.addEventListener 'mouseup', () =>
+        @keys[key] = off
 
+    # Do that for each key of the visual keyboard
+    cells = @keyboard.querySelectorAll 'td'
+    setup_key(cell) for cell in cells
 
-    get visual_keyboard() { return _keyboard.style.display != 'none' },
-    set visual_keyboard(x) { toggle_visual_keyboard(x) },
+  remap_visual_keyboard: () ->
+    # Show the visual keyboard and start the key binding sequence
+    @toggle_visual_keyboard on
+    @remap_key 0, true
 
-      // Setup the visual keyboard
+  remap_key: (index, follow = false) ->
 
-      _keyboard = document.querySelector('table#keyboard');
+    cells = @keyboard.querySelectorAll 'td'
+    cell = cells[index]
+    hex = parseInt cell.textContent[0], 16
 
-      var cells = _keyboard.querySelectorAll('td');
-      for (var i = 0; i < cells.length; ++i) {
+    # Change the style of the key for the duration of the binding
+    cell.className = 'setup'
 
-        var key = parseInt(cells[i].textContent[0], 16);
+    # Function that maps the current hex key to the first
+    #modern key pressed
+    listener = ({keyCode}) =>
 
-        var binding = document.createElement('span');
-        for (var k in _mapping)
-          if (_mapping[k] === key) {
-            binding.textContent = String.fromCharCode(k);
-            break;
-          }
-        cells[i].appendChild(binding);
+      # Remove the previous key from the mapping
+      delete @mapping[@hex_to_modern hex]
 
-        cells[i].addEventListener('mousedown', function(key) {
-          return function() {
+      # Bind the new key
+      @mapping[keyCode] = hex
 
-            _keys[key] = true;
+      # Update the displayed key too
+      cell.children[0].textContent = String.fromCharCode keyCode
 
-            if (this.callback)
-              this.callback(key);
-          }.bind(this)
-        }.call(this, key));
+      # Reset the style and remove the keyboard listener
+      cell.className = ''
+      document.removeEventListener 'keydown', listener
 
-        cells[i].addEventListener('mouseup', function(key) {
-          return function() {
+      # Follow up with the next key if necessary
+      if follow
+        @remap_key index + 1, index < 14
 
-            _keys[key] = false;
-          }
-        }(key));
-      }
-    },
+    document.addEventListener 'keydown', listener
 
+  # Getters/Setters for the GUI
 
-    set_keys: function() {
-
-      // Show the visual keyboard and start the key binding sequence
-
-      if (!this.visual_keyboard)
-        toggle_visual_keyboard(true);
-
-      this.set_key(0, true);
-    },
-
-    set_key: function(key, loop) {
-
-      // Change the style of the key being bound
-
-      var cells = _keyboard.querySelectorAll('td');
-      var hex = key.toString(16).toUpperCase();
-
-      var cell = [].find.call(cells, function(c) {
-        return c.textContent[0] == hex;
-      });
-
-      cell.className = 'setup';
-
-      // Bind the Chip-8 key to the first pressed key
-
-      var input = this;
-      _key_binding_listener = document.addEventListener('keydown', function me(event) {
-
-        // Check that the key was not already bound in this sequence
-
-        if (_mapping[event.keyCode] !== undefined && _mapping[event.keyCode] < key) {
-          console.warn('The ' + String.fromCharCode(event.keyCode) + ' key is already bound to ' + _mapping[event.keyCode].toString(16).toUpperCase());
-          return;
-        }
-
-        // Remove the previous key
-
-        for (var k in _mapping)
-          if (_mapping[k] == key)
-            delete _mapping[k];
-
-        // Bind the new key
-
-        _mapping[event.keyCode] = key;
-
-        cell.className = '';
-        cell.children[0].textContent = String.fromCharCode(event.keyCode);
-        document.removeEventListener('keydown', me);
-
-        // Continue the binding sequence with the next key
-
-        if (loop && key < 0xF)
-          input.set_key(key + 1, true);
-
-  ###
-
+  @get 'visual_keyboard', () -> @keyboard.style.display isnt 'none'
+  @set 'visual_keyboard', (x) -> @toggle_visual_keyboard(x)
 
 module.exports = Input

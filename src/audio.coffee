@@ -33,7 +33,7 @@ class Audio
     frequency = if @oscillator? then @oscillator.frequency.value else 300
 
     @oscillator = @ctx.createOscillator()
-    @oscillator.type = 0
+    @oscillator.type = 'sine'
     @oscillator.frequency.value = frequency
 
   # Getters/Setters for the GUI
@@ -43,6 +43,5 @@ class Audio
 
   @get 'frequency', -> @oscillator.frequency.value
   @set 'frequency', (x) -> @oscillator.frequency.value = x
-
 
 module.exports = Audio

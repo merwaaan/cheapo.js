@@ -9,7 +9,7 @@ class CPU
 
     @memory = new Uint8Array 0x1000
 
-    # Clock rate
+    # Clock frequency
     @frequency = 500
 
     # Delay for the timers to be decremented
@@ -19,7 +19,6 @@ class CPU
     @timerAcc = 0
 
     # Registers
-
     @V = new Uint8Array 16
     @R = new Uint8Array 8
     @I = 0
@@ -39,7 +38,7 @@ class CPU
       VY_shift: off
 
     # Is the CPU ready to run? (has a game been loaded?)
-    @ready = yes
+    @ready = no
 
     # Is the CPU waiting for user input?
     # (The LD_Vx_K instruction blocks the execution until a
@@ -48,8 +47,8 @@ class CPU
 
     # The jumptable contains all possible opcodes and precomputed
     # parameters extracted from the opcode. Filling the jumptable
-    # is done by binding instructions to patterns with
-    # register().
+    # is done by binding instructions to patterns with the
+    # register() method.
     @jumptable = {}
 
     # CHIP-8 instructions
@@ -103,6 +102,7 @@ class CPU
 
     # Isolate the "wildcards" in the opcode pattern
     # eg. '8xy0' -> ['x', 'y']
+    #     'Annn' -> ['nnn']
     wildcards = pattern.match /x|y|nnn|n|kk/g
 
     # If there is no wildcard (unique opcode without
@@ -113,8 +113,8 @@ class CPU
       console.info "Opcode #{pattern} registered"
 
     # If there are wildcards, enumerate the possible opcodes
-    # and fill the jumptable with the instruction and
-    # precomputed parameters
+    # and fill the jumptable with the instruction bound to
+    # the CPU and precomputed parameters
     else
 
       wildcardsLength = wildcards.join('').length
@@ -138,9 +138,9 @@ class CPU
 
           cursor += wildcards[j].length
 
-        @jumptable[parseInt(opcode, 16)] = instruction.bind.apply instruction, [@].concat(parameters)
+        @jumptable[parseInt opcode, 16] = instruction.bind.apply instruction, [@].concat(parameters)
 
-      console.info "Pattern #{pattern} registered (#{range} cached instances)"
+      console.info "Pattern #{pattern} registered (#{range} instances)"
 
   reset: ->
 
@@ -148,7 +148,8 @@ class CPU
     @waiting = no
     @timerAcc = 0
 
-    # Reset the registers
+    _.fill @memory, 0
+
     @PC = 0x200
     @SP = 0
     @DT = 0
@@ -156,9 +157,6 @@ class CPU
     _.fill @V, 0
     _.fill @R, 0
     _.fill @stack, 0
-
-    # Reset memory
-    _.fill @memory, 0
 
     # Put the fonts data at 0
     for bit, i in Fonts
@@ -210,7 +208,7 @@ class CPU
 
       if @ST > 0
         --@ST
-        if @ST is 0
+        if @ST < 1
           @cheapo.audio.toggle off
 
       @timerAcc -= @timerDelay
@@ -219,6 +217,5 @@ class CPU
 
   @get 'timerFrequency', -> 1 / @timerDelay
   @set 'timerFrequency', (x) -> @timerDelay = 1 / x
-
 
 module.exports = CPU

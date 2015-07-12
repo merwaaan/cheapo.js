@@ -14,7 +14,6 @@ RESOLUTIONS =
 cssColor = (color) ->
   '#' + (('0' + parseInt(c).toString(16)).substr(-2) for c in color).join('')
 
-
 class Video
 
   constructor: (@cheapo, @container = null) ->
@@ -62,6 +61,8 @@ class Video
 
   sprite: (address, x, y, n) ->
 
+    # Will be false at the end if a pixel already on screen
+    # has been hit by a new pixel
     collision = no
 
     h = if n is 0 then 16 else n # "0 lines" actually means "draw all lines"   ¯\_(ツ)_/¯
@@ -117,7 +118,6 @@ class Video
           @screen[i * @resolution.x + j] = if i > y - 1 then  @screen[(i - y) * @resolution.x + j] else off
 
     # Horizontal scrolling
-
     if x > 0
       for i in [0...@resolution.y]
         for j in [@resolution.x - 1..0] by -1
@@ -181,6 +181,5 @@ class Video
 
   @get 'size', -> @scale
   @set 'size', (x) -> @setScale x
-
 
 module.exports = Video
